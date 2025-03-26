@@ -40,13 +40,24 @@ namespace FordFulkerson_Algorithm
             for (int i = 0; i < nodeCount; i++) {
                 graph.Nodes.Add(new Node(i + 1));
             }
-            
-            var sourceLinkedNodesNumber = rng.Next(1, nodeCount);
 
-            for (int i = 0; i < sourceLinkedNodesNumber; i++) 
+            //Iterate through the list and for each element, make the probability of selection = (number needed) / (number left)
+            //So if you had 40 items, the first would have a 5 / 40 chance of being selected.
+            //If it is, the next has a 4 / 39 chance, otherwise it has a 5 / 39 chance.By the time you get to the end you will have your 5 items, and often you'll have all of them before that.
+
+            var sourceLinkedNodesNumberLeft = rng.Next(1, nodeCount);
+            var sourceNodesNumbers = new List<int>();
+
+            while (graph.Source.Edges.Count < sourceLinkedNodesNumberLeft)
             {
-                
+                var prob = (double)sourceLinkedNodesNumberLeft / (double)nodeCount;
+                //var prob = rng.RandomDouble(0.0, (double)nodeCount) / sourceLinkedNodesNumberLeft;
+                //if (prob < )
+
+                //var nodeNr = rng.Next(1, nodeCount);
+
             }
+
             return new Graph(); 
         }
     }
