@@ -16,11 +16,12 @@ namespace FordFulkerson_Algorithm
         public Result GenerateGraphAndCalculateFlow(int graphSize, double temperature, int maxFlowPerEdge) 
         {
             //var graph = _graphCreator.GenerateGraph(graphSize, temperature, maxFlowPerEdge);
-            var graph = _graphCreator.GenerateGraphNotJagged(graphSize, temperature, maxFlowPerEdge);
+            //var graph = _graphCreator.GenerateGraphNotJagged(graphSize, temperature, maxFlowPerEdge);
+            var graph = _graphCreator.GenerateGraphStructure(graphSize, temperature, maxFlowPerEdge);
 
 
             var start = DateTime.UtcNow;
-            var maxFlow = _fordFulkerson.FordFulkerson(graph, 0, graphSize - 1, graphSize);
+            var maxFlow = _fordFulkerson.FordFulkerson(graph, 0, graphSize - 1);
             var duration = DateTime.UtcNow - start;
 
             return new Result(duration, graphSize, temperature, maxFlow);

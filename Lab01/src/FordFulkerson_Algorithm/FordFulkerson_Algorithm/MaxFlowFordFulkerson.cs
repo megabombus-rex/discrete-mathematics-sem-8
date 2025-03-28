@@ -1,4 +1,5 @@
 ﻿using FordFulkerson_Algorithm.Data;
+using System.Drawing;
 
 namespace FordFulkerson_Algorithm
 {
@@ -96,6 +97,106 @@ namespace FordFulkerson_Algorithm
             return false;
         }
 
+
+        //returns true if the residiual graph contains path from source to sink
+        bool BFS(Graph graph, int source, int sink, int[] parent)
+        {
+            bool[] visited = new bool[graph.GraphNodeCount];
+            for (int i = 0; i < graph.GraphNodeCount; i++)
+            {
+                visited[i] = false;
+            }
+
+            Queue<Node> queue = new Queue<Node>();
+            queue.Enqueue(graph.GetNodeByNumber(source));
+            visited[source] = true;
+            parent[source] = -1;
+
+            // Standard BFS Loop
+            while (queue.Count != 0)
+            {
+                var currentNode = queue.Dequeue(); //queue[0];
+
+                for (int targetNode = 0; targetNode < graph.GraphNodeCount; targetNode++)
+                {
+                    if (visited[targetNode] == false && currentNode.Edges.Any(x => x.EndNode == targetNode && x.Capacity > 0))
+                    {
+                        if (targetNode == sink)
+                        {
+                            parent[targetNode] = currentNode.Number;
+                            return true;
+                        }
+                        queue.Enqueue(graph.GetNodeByNumber(targetNode));
+                        parent[targetNode] = currentNode.Number;
+                        visited[targetNode] = true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public int FordFulkerson(Graph graph, int source, int sink)
+        {
+
+            int u, v;
+            var size = graph.GraphNodeCount;
+
+            var rGraph = graph.GetGraphClone();
+
+
+            // This array is filled by BFS and to store path
+            int[] parent = new int[size];
+
+            int max_flow = 0; // There is no flow initially
+
+            // Augment the flow while there is path from source
+            // to sink
+            while (BFS(rGraph, source, sink, parent))
+            {
+                // Find minimum residual capacity of the edges
+                // along the path filled by BFS. Or we can say
+                // find the maximum flow through the path found.
+                int pathFlow = int.MaxValue;
+                for (v = sink; v != source; v = parent[v])
+                {
+                    u = parent[v];
+                    var cap = rGraph.GetNodeByNumber(u).Edges.First(x => x.EndNode == v).Capacity;
+                    pathFlow
+                        = Math.Min(pathFlow, cap);
+                }
+
+                // update residual capacities of the edges and
+                // reverse edges along the path
+                for (v = sink; v != source; v = parent[v])
+                {
+                    u = parent[v];
+                    var uNode = rGraph.GetNodeByNumber(u);
+                    var vNode = rGraph.GetNodeByNumber(v);
+
+                    if (!vNode.Edges.Any(x => x.EndNode == u))
+                    {
+                        var edge = new Edge();
+                        edge.Capacity = pathFlow;
+                        edge.StartNode = v;
+                        edge.EndNode = u;
+                        vNode.Edges.Add(edge);
+                    }
+                    else
+                    {
+                        rGraph.GetNodeByNumber(v).Edges.First(x => x.EndNode == u).Capacity += pathFlow;
+                    }
+                    
+                    rGraph.GetNodeByNumber(u).Edges.First(x => x.EndNode == v).Capacity -= pathFlow;
+                }
+
+                // Add path flow to overall flow
+                max_flow += pathFlow;
+            }
+
+            // Return the overall flow
+            return max_flow;
+
+        }
 
         public int FordFulkerson(int[,] graph, int source, int sink, int size)
         {
