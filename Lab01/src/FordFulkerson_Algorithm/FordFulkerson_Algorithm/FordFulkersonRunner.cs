@@ -15,7 +15,8 @@ namespace FordFulkerson_Algorithm
 
         public Result GenerateGraphAndCalculateFlow(int graphSize, double temperature, int maxFlowPerEdge) 
         {
-            var graph = _graphCreator.GenerateGraph(graphSize, temperature, maxFlowPerEdge);
+            //var graph = _graphCreator.GenerateGraph(graphSize, temperature, maxFlowPerEdge);
+            var graph = _graphCreator.GenerateGraphNotJagged(graphSize, temperature, maxFlowPerEdge);
 
 
             var start = DateTime.UtcNow;
@@ -27,7 +28,7 @@ namespace FordFulkerson_Algorithm
 
         public void ShowResult(Result result)
         {
-            Console.WriteLine($"A graph of size {result.GraphSize} generated with temperature {result.Temperature} has a max flow calculated as {result.MaxFlow}. It took {result.Duration.Milliseconds}ms.");
+            Console.WriteLine($"A graph of size {result.GraphSize} generated with temperature {result.Temperature} has a max flow calculated as {result.MaxFlow}. It took {result.Duration.TotalMilliseconds}ms.");
         }
     }
 }

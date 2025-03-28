@@ -2,16 +2,16 @@
 
 var runner = new FordFulkersonRunner();
 
-var testResult = runner.GenerateGraphAndCalculateFlow(100, 2.5, 30);
-runner.ShowResult(testResult);
+//var testResult = runner.GenerateGraphAndCalculateFlow(100, 2.5, 30);
+//runner.ShowResult(testResult);
 
 var testSizes = new int[] {
-    10, 100, 1000, 10000, 100000, //1000000,
+    10, 100, 1000, 10000, 20000, 30000, 50000//100000, //1000000,
 };
 
 var temperatures = new double[]
 {
-    0.5, 1.0, 2.5, 3.5 //5.0, 10.0
+    0.5, 1.0, 2.5, 3.5, 5.0, 10.0
 };
 
 var weight = 30;
