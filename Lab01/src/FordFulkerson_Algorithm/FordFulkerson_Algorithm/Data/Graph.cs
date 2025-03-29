@@ -11,6 +11,9 @@
             _edges = new List<Edge>();
         }
 
+        public List<Node> Nodes { get { return _nodes; } }
+
+
         public void AddNode(Node node)
         {
             _nodes.Add(node);

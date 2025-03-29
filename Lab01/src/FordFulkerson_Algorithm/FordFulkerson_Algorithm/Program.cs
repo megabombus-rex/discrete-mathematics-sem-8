@@ -17,19 +17,20 @@ var temperatures = new double[]
 
 var weight = 30;
 
-for (int i = 0; i < testSizes.Length; i++)
-{
-    for (int j = 0; j < temperatures.Length; j++)
-    {
-        var result = runner.GenerateGraphAndCalculateFlow(graphSize: testSizes[i], temperature: temperatures[j], weight);
-        runner.ShowResult(result);
-    }
-}
+//for (int i = 0; i < testSizes.Length; i++)
+//{
+//    for (int j = 0; j < temperatures.Length; j++)
+//    {
+//        var result = runner.GenerateGraphAndCalculateFlow(graphSize: testSizes[i], temperature: temperatures[j], weight);
+//        runner.ShowResult(result);
+//    }
+//}
 
 
-//var graphCreator = new GraphCreator();
+var graphCreator = new GraphCreator();
+Graph graph = graphCreator.GenerateGraphStructure(100, 2.5, weight);
 
-//Graph graph = graphCreator.GenerateGraphStructure(10, 2.5, weight);
+runner.TestAndSaveGraph(graph, 2.5);
 
 //var graph = new Graph();
 //var node0 = new Node(0);
