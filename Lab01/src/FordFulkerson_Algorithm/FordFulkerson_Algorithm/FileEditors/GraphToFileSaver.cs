@@ -20,7 +20,7 @@ namespace FordFulkerson_Algorithm.FileEditors
                 {
                     foreach (var edge in node.Edges)
                     {
-                        sw.WriteLine($"{node.Number} {edge.EndNode} {edge.Capacity}");
+                        sw.WriteLine($"{node.Number} {edge.EndNodeNr} {edge.Capacity}");
                     }
                 }
 

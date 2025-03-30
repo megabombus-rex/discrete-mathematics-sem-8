@@ -12,6 +12,7 @@
         }
 
         public List<Node> Nodes { get { return _nodes; } }
+        public List<Edge> Edges { get { return _edges; } }
 
 
         public void AddNode(Node node)
@@ -48,11 +49,11 @@
             foreach (var edge in _edges)
             {
                 var edgeClone = new Edge();
-                edgeClone.StartNode = edge.StartNode;
-                edgeClone.EndNode = edge.EndNode;
+                edgeClone.StartNodeNr = edge.StartNodeNr;
+                edgeClone.EndNodeNr = edge.EndNodeNr;
                 edgeClone.Capacity = edge.Capacity;
 
-                var nodeClone = nodeListClone.First(x => x.Number == edgeClone.StartNode);
+                var nodeClone = nodeListClone.First(x => x.Number == edgeClone.StartNodeNr);
                 nodeClone.Edges.Add(edgeClone);
             }
 

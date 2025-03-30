@@ -2,8 +2,8 @@
 {
     public class Edge
     {
-        public int StartNode;
-        public int EndNode;
+        public int StartNodeNr;
+        public int EndNodeNr;
         public int Capacity;
     }
 }

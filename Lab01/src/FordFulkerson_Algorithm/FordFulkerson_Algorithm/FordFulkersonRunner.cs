@@ -1,5 +1,7 @@
 ﻿using FordFulkerson_Algorithm.Data;
 using FordFulkerson_Algorithm.FileEditors;
+using System.Runtime;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FordFulkerson_Algorithm
 {
@@ -18,6 +20,11 @@ namespace FordFulkerson_Algorithm
 
         public Result TestAndSaveGraph(Graph graph, double temperature)
         {
+            //if (graph.GraphNodeCount > 5000)
+            //{
+            //    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            //    GC.Collect();
+            //}
             var start = DateTime.UtcNow;
             var maxFlow = _fordFulkerson.FordFulkerson(graph, 0, graph.GraphNodeCount - 1);
             var duration = DateTime.UtcNow - start;
@@ -47,7 +54,16 @@ namespace FordFulkerson_Algorithm
 
         public void ShowResult(Result result)
         {
-            Console.WriteLine($"A graph of size {result.GraphSize} generated with temperature {result.Temperature} has a max flow calculated as {result.MaxFlow}. It took {result.Duration.TotalMilliseconds}ms.");
+            var start = DateTime.UtcNow;
+            var date = (start.ToShortDateString() + start.ToShortTimeString()).Replace(':', '_').Replace(' ', '_');
+            var data = $"A graph of size {result.GraphSize} generated with temperature {result.Temperature} has a max flow calculated as {result.MaxFlow}. It took {result.Duration.TotalMilliseconds}ms. At {date}.";
+            //Console.WriteLine(data);
+            var filepath = $"{Environment.CurrentDirectory}\\..\\..\\..\\Results\\GraphRes_{result.GraphSize}_t_{result.Temperature}";//string.Format("{0}\\{1}\\{2}", Environment.CurrentDirectory, "..\\..\\..\\SavedGraphs", $"graph");
+
+            using (StreamWriter sw = new StreamWriter(filepath, true)) 
+            {
+                sw.WriteLine(data);
+            }
         }
     }
 }

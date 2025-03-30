@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Results\" />
     <Folder Include="SavedGraphs\" />
   </ItemGroup>
 

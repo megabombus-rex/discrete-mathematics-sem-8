@@ -106,7 +106,7 @@ namespace FordFulkerson_Algorithm
 
             //}
 
-            Console.WriteLine($"Additional edges: {additionalEdges}");
+            //Console.WriteLine($"Additional edges: {additionalEdges}");
 
             for (i = 0; i < additionalEdges; i++)
             {
@@ -147,8 +147,8 @@ namespace FordFulkerson_Algorithm
             {
                 int w = rng.Next(1, weight);
                 var edge = new Edge();
-                edge.StartNode = i; 
-                edge.EndNode = i + 1;
+                edge.StartNodeNr = i; 
+                edge.EndNodeNr = i + 1;
                 edge.Capacity = w;
 
                 nodeList[i].Edges.Add(edge);
@@ -157,7 +157,7 @@ namespace FordFulkerson_Algorithm
             int additionalEdges = (int)Math.Round((double)nodeCount * temperature);
 
 
-            Console.WriteLine($"Additional edges: {additionalEdges}");
+            //Console.WriteLine($"Additional edges: {additionalEdges}");
 
             for (i = 0; i < additionalEdges; i++)
             {
@@ -165,12 +165,12 @@ namespace FordFulkerson_Algorithm
                 var v = rng.Next(0, nodeCount);
 
                 // graph[u, v] == 0 && graph[v,u] == 0 -> no bi-directional graphs
-                if (u != v && !nodeList[u].Edges.Any(x => x.EndNode == v))// && !nodeList[v].Edges.Any(x => x.EndEdge == u)) - this may be unnecessary
+                if (u != v && !nodeList[u].Edges.Any(x => x.EndNodeNr == v))// && !nodeList[v].Edges.Any(x => x.EndEdge == u)) - this may be unnecessary
                 {
                     int w = rng.Next(1, weight);
                     var edge = new Edge();
-                    edge.StartNode = u;
-                    edge.EndNode = v;
+                    edge.StartNodeNr = u;
+                    edge.EndNodeNr = v;
                     edge.Capacity = w;
 
                     nodeList[u].Edges.Add(edge);

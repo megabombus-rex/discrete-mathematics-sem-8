@@ -119,7 +119,7 @@ namespace FordFulkerson_Algorithm
 
                 for (int targetNode = 0; targetNode < graph.GraphNodeCount; targetNode++)
                 {
-                    if (visited[targetNode] == false && currentNode.Edges.Any(x => x.EndNode == targetNode && x.Capacity > 0))
+                    if (visited[targetNode] == false && currentNode.Edges.Any(x => x.EndNodeNr == targetNode && x.Capacity > 0))
                     {
                         if (targetNode == sink)
                         {
@@ -138,10 +138,10 @@ namespace FordFulkerson_Algorithm
         public int FordFulkerson(Graph graph, int source, int sink)
         {
 
-            int u, v;
+            int currentNodeNr, previousNodeNr;
             var size = graph.GraphNodeCount;
 
-            var rGraph = graph.GetGraphClone();
+            //var rGraph = graph.GetGraphClone();
 
 
             // This array is filled by BFS and to store path
@@ -149,45 +149,77 @@ namespace FordFulkerson_Algorithm
 
             int max_flow = 0; // There is no flow initially
 
-            // Augment the flow while there is path from source
-            // to sink
-            while (BFS(rGraph, source, sink, parent))
+            // Augment the flow while there is path from source to sink
+            while (BFS(graph, source, sink, parent))
             {
-                // Find minimum residual capacity of the edges
-                // along the path filled by BFS. Or we can say
-                // find the maximum flow through the path found.
+                // Find minimum residual capacity of the edges along the path filled by BFS.
+                // Or we can say find the maximum flow through the path found.
                 int pathFlow = int.MaxValue;
-                for (v = sink; v != source; v = parent[v])
+                for (previousNodeNr = sink; previousNodeNr != source; previousNodeNr = parent[previousNodeNr])
                 {
-                    u = parent[v];
-                    var cap = rGraph.GetNodeByNumber(u).Edges.First(x => x.EndNode == v).Capacity;
-                    pathFlow
-                        = Math.Min(pathFlow, cap);
+                    currentNodeNr = parent[previousNodeNr];
+                    var cap = graph.GetNodeByNumber(currentNodeNr).Edges.First(x => x.EndNodeNr == previousNodeNr).Capacity;
+                    pathFlow = Math.Min(pathFlow, cap);
                 }
 
-                // update residual capacities of the edges and
-                // reverse edges along the path
-                for (v = sink; v != source; v = parent[v])
-                {
-                    u = parent[v];
-                    var uNode = rGraph.GetNodeByNumber(u);
-                    var vNode = rGraph.GetNodeByNumber(v);
+                // update residual capacities of the edges and reverse edges along the path
+                previousNodeNr = sink;
 
-                    if (!vNode.Edges.Any(x => x.EndNode == u))
+                while (previousNodeNr != source)
+                {
+                    currentNodeNr = parent[previousNodeNr];
+                    var currentNode = graph.GetNodeByNumber(currentNodeNr);
+                    var previousNode = graph.GetNodeByNumber(previousNodeNr);
+
+                    graph.GetNodeByNumber(currentNodeNr).Edges.First(x => x.EndNodeNr == previousNodeNr).Capacity -= pathFlow;
+
+                    // if there is no edge like this (residual is a clone and may not contain an edge in a direction that it needs)
+                    if (previousNode.Edges.Any(x => x.EndNodeNr == currentNodeNr))
                     {
-                        var edge = new Edge();
-                        edge.Capacity = pathFlow;
-                        edge.StartNode = v;
-                        edge.EndNode = u;
-                        vNode.Edges.Add(edge);
+                        graph.GetNodeByNumber(previousNodeNr).Edges.First(x => x.EndNodeNr == currentNodeNr).Capacity += pathFlow;
+                        //Console.WriteLine($"Edge existed for nodes {previousNodeNr} and {currentNodeNr}");
                     }
                     else
                     {
-                        rGraph.GetNodeByNumber(v).Edges.First(x => x.EndNode == u).Capacity += pathFlow;
+                        var reverseEdge = new Edge();
+                        //Console.WriteLine($"Edge created for nodes {previousNodeNr} and {currentNodeNr}");
+                        reverseEdge.Capacity = pathFlow;
+                        reverseEdge.StartNodeNr = previousNodeNr;
+                        reverseEdge.EndNodeNr = currentNodeNr;
+                        previousNode.Edges.Add(reverseEdge);
+                        graph.Edges.Add(reverseEdge);
                     }
-                    
-                    rGraph.GetNodeByNumber(u).Edges.First(x => x.EndNode == v).Capacity -= pathFlow;
+
+                    previousNodeNr = parent[previousNodeNr];
                 }
+
+                //for (previousNodeNr = sink; previousNodeNr != source; previousNodeNr = parent[previousNodeNr])
+                //{
+                //    currentNodeNr = parent[previousNodeNr];
+                //    var uNode = rGraph.GetNodeByNumber(currentNodeNr);
+                //    var vNode = rGraph.GetNodeByNumber(previousNodeNr);
+
+                //    // if there is no edge like this (residual is a clone and may not contain an edge in a direction that it needs)
+                //    if (!vNode.Edges.Any(x => x.EndNodeNr == currentNodeNr))
+                //    {
+                //        var edge = new Edge();
+                //        Console.WriteLine($"Edge created for nodes {previousNodeNr} and {currentNodeNr}");
+                //        edge.Capacity = pathFlow;
+                //        edge.StartNodeNr = previousNodeNr;
+                //        edge.EndNodeNr = currentNodeNr;
+                //        vNode.Edges.Add(edge);
+                //        rGraph.Edges.Add(edge);
+                //        //Console.WriteLine($"Flow for residual increased by flow: {pathFlow} for nodes: {v} and {u}.");
+                //    }
+                //    else
+                //    {
+                //        //Console.WriteLine($"Flow for residual increased by flow: {pathFlow} for nodes: {v} and {u}.");
+                //        rGraph.GetNodeByNumber(previousNodeNr).Edges.First(x => x.EndNodeNr == currentNodeNr).Capacity += pathFlow;
+                //    }
+                    
+                //    //Console.WriteLine($"Flow for base graph decreased by flow: {pathFlow} for nodes: {u} and {v}.");
+                //    rGraph.GetNodeByNumber(currentNodeNr).Edges.First(x => x.EndNodeNr == previousNodeNr).Capacity -= pathFlow;
+                //}
 
                 // Add path flow to overall flow
                 max_flow += pathFlow;
