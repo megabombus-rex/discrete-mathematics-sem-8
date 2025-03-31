@@ -193,34 +193,6 @@ namespace FordFulkerson_Algorithm
                     previousNodeNr = parent[previousNodeNr];
                 }
 
-                //for (previousNodeNr = sink; previousNodeNr != source; previousNodeNr = parent[previousNodeNr])
-                //{
-                //    currentNodeNr = parent[previousNodeNr];
-                //    var uNode = rGraph.GetNodeByNumber(currentNodeNr);
-                //    var vNode = rGraph.GetNodeByNumber(previousNodeNr);
-
-                //    // if there is no edge like this (residual is a clone and may not contain an edge in a direction that it needs)
-                //    if (!vNode.Edges.Any(x => x.EndNodeNr == currentNodeNr))
-                //    {
-                //        var edge = new Edge();
-                //        Console.WriteLine($"Edge created for nodes {previousNodeNr} and {currentNodeNr}");
-                //        edge.Capacity = pathFlow;
-                //        edge.StartNodeNr = previousNodeNr;
-                //        edge.EndNodeNr = currentNodeNr;
-                //        vNode.Edges.Add(edge);
-                //        rGraph.Edges.Add(edge);
-                //        //Console.WriteLine($"Flow for residual increased by flow: {pathFlow} for nodes: {v} and {u}.");
-                //    }
-                //    else
-                //    {
-                //        //Console.WriteLine($"Flow for residual increased by flow: {pathFlow} for nodes: {v} and {u}.");
-                //        rGraph.GetNodeByNumber(previousNodeNr).Edges.First(x => x.EndNodeNr == currentNodeNr).Capacity += pathFlow;
-                //    }
-                    
-                //    //Console.WriteLine($"Flow for base graph decreased by flow: {pathFlow} for nodes: {u} and {v}.");
-                //    rGraph.GetNodeByNumber(currentNodeNr).Edges.First(x => x.EndNodeNr == previousNodeNr).Capacity -= pathFlow;
-                //}
-
                 // Add path flow to overall flow
                 max_flow += pathFlow;
             }

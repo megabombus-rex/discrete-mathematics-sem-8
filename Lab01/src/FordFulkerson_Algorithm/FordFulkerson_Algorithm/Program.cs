@@ -32,12 +32,40 @@ var meanRuntimeSum = 0.0;
 
 Console.WriteLine($"Test done for {testCount} iterations.");
 
+// for edge = 2*nodes
+//for (int j = 0; j < testSizes.Length; j++)
+//{
+//    var runtimes = new double[testCount];
+//    for (int i = 0; i < testCount; i++)
+//    {
+//        var result = runner.GenerateGraphAndCalculateFlow(testSizes[j], 1.0, weight);
+//        runner.ShowResult(result);
+
+//        runtimes[i] = result.Duration.TotalMilliseconds;
+//        meanRuntimeSum += result.Duration.TotalMilliseconds;
+//    }
+//    var meanRuntime = meanRuntimeSum / testCount;
+
+//    var stdDev = 0.0;
+
+//    for (int i = 0; i < testCount; i++)
+//    {
+//        stdDev += Math.Pow(runtimes[i] - meanRuntime, 2);
+//    }
+//    stdDev = stdDev / testCount;
+//    stdDev = Math.Sqrt(stdDev);
+
+//    Console.WriteLine($"Mean runtime for a graph of size {testSizes[j]} and with {testSizes[j] * 2} edges, mean runtime = {meanRuntime} and std deviation = {stdDev}");
+
+//}
+
+// for edge = 3.5*nodes
 for (int j = 0; j < testSizes.Length; j++)
 {
     var runtimes = new double[testCount];
     for (int i = 0; i < testCount; i++)
     {
-        var result = runner.GenerateGraphAndCalculateFlow(testSizes[j], 1.0, weight);
+        var result = runner.GenerateGraphAndCalculateFlow(testSizes[j], 2.5, weight);
         runner.ShowResult(result);
 
         runtimes[i] = result.Duration.TotalMilliseconds;
@@ -54,10 +82,8 @@ for (int j = 0; j < testSizes.Length; j++)
     stdDev = stdDev / testCount;
     stdDev = Math.Sqrt(stdDev);
 
-    Console.WriteLine($"Mean runtime for a graph of size {testSizes[j]} and with {testSizes[j]} edges, mean runtime = {meanRuntime} and std deviation = {stdDev}");
-
+    Console.WriteLine($"Mean runtime for a graph of size {testSizes[j]} and with {testSizes[j] * 3.5} edges, mean runtime = {meanRuntime} and std deviation = {stdDev}");
 }
-
 
 //Graph graph = graphCreator.GenerateGraphStructure(25, 2.5, weight);
 
