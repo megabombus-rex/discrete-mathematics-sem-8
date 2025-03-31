@@ -1,4 +1,5 @@
-﻿using FordFulkerson_Algorithm;
+﻿using BenchmarkDotNet.Running;
+using FordFulkerson_Algorithm;
 using FordFulkerson_Algorithm.Data;
 
 var runner = new FordFulkersonRunner();
@@ -60,30 +61,32 @@ Console.WriteLine($"Test done for {testCount} iterations.");
 //}
 
 // for edge = 3.5*nodes
-for (int j = 0; j < testSizes.Length; j++)
-{
-    var runtimes = new double[testCount];
-    for (int i = 0; i < testCount; i++)
-    {
-        var result = runner.GenerateGraphAndCalculateFlow(testSizes[j], 2.5, weight);
-        runner.ShowResult(result);
+//for (int j = 0; j < testSizes.Length; j++)
+//{
+//    var runtimes = new double[testCount];
+//    for (int i = 0; i < testCount; i++)
+//    {
+//        var result = runner.GenerateGraphAndCalculateFlow(testSizes[j], 2.5, weight);
+//        runner.ShowResult(result);
 
-        runtimes[i] = result.Duration.TotalMilliseconds;
-        meanRuntimeSum += result.Duration.TotalMilliseconds;
-    }
-    var meanRuntime = meanRuntimeSum / testCount;
+//        runtimes[i] = result.Duration.TotalMilliseconds;
+//        meanRuntimeSum += result.Duration.TotalMilliseconds;
+//    }
+//    var meanRuntime = meanRuntimeSum / testCount;
 
-    var stdDev = 0.0;
+//    var stdDev = 0.0;
 
-    for (int i = 0; i < testCount; i++)
-    {
-        stdDev += Math.Pow(runtimes[i] - meanRuntime, 2);
-    }
-    stdDev = stdDev / testCount;
-    stdDev = Math.Sqrt(stdDev);
+//    for (int i = 0; i < testCount; i++)
+//    {
+//        stdDev += Math.Pow(runtimes[i] - meanRuntime, 2);
+//    }
+//    stdDev = stdDev / testCount;
+//    stdDev = Math.Sqrt(stdDev);
 
-    Console.WriteLine($"Mean runtime for a graph of size {testSizes[j]} and with {testSizes[j] * 3.5} edges, mean runtime = {meanRuntime} and std deviation = {stdDev}");
-}
+//    Console.WriteLine($"Mean runtime for a graph of size {testSizes[j]} and with {testSizes[j] * 3.5} edges, mean runtime = {meanRuntime} and std deviation = {stdDev}");
+//}
+
+
 
 //Graph graph = graphCreator.GenerateGraphStructure(25, 2.5, weight);
 
