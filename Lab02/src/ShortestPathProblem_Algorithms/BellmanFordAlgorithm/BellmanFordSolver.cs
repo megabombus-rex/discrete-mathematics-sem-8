@@ -1,4 +1,4 @@
-﻿using GraphGenerator.Structures;
+﻿using GraphData;
 
 namespace BellmanFordAlgorithm
 {
