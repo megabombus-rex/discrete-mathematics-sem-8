@@ -1,4 +1,4 @@
-﻿using GraphGenerator.Structures;
+﻿using GraphData;
 using System;
 using System.Collections.Generic;
 using System.Linq;

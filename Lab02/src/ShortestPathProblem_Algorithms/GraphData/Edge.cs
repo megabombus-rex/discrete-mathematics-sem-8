@@ -1,4 +1,4 @@
-﻿namespace GraphGenerator.Structures
+﻿namespace GraphData
 {
     public class Edge
     {
