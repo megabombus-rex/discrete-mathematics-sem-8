@@ -25,7 +25,7 @@ namespace GraphTraversalAlgorithms
 
                 for (int targetNode = 0; targetNode < graph.GraphNodeCount; targetNode++)
                 {
-                    if (visited[targetNode] == false && currentNode.Edges.Any(x => x.EndNodeNr == targetNode && x.Capacity > 0))
+                    if (visited[targetNode] == false && currentNode.Edges.Any(x => x.EndNodeNr == targetNode && x.Weight > 0))
                     {
                         if (targetNode == target)
                         {

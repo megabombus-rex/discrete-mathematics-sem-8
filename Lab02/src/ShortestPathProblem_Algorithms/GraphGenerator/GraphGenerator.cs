@@ -25,7 +25,7 @@ namespace GraphGenerator
                 var edge = new Edge();
                 edge.StartNodeNr = i;
                 edge.EndNodeNr = i + 1;
-                edge.Capacity = w;
+                edge.Weight = w;
 
                 nodeList[i].Edges.Add(edge);
             }
@@ -47,7 +47,7 @@ namespace GraphGenerator
                     var edge = new Edge();
                     edge.StartNodeNr = u;
                     edge.EndNodeNr = v;
-                    edge.Capacity = w;
+                    edge.Weight = w;
 
                     nodeList[u].Edges.Add(edge);
                 }
@@ -83,7 +83,7 @@ namespace GraphGenerator
                 var edge = new Edge();
                 edge.StartNodeNr = i;
                 edge.EndNodeNr = i + 1;
-                edge.Capacity = w;
+                edge.Weight = w;
 
                 nodeList[i].Edges.Add(edge);
             }
@@ -105,7 +105,7 @@ namespace GraphGenerator
                     var edge = new Edge();
                     edge.StartNodeNr = u;
                     edge.EndNodeNr = v;
-                    edge.Capacity = w;
+                    edge.Weight = w;
 
                     nodeList[u].Edges.Add(edge);
                 }

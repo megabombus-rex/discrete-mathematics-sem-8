@@ -7,4 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BellmanFordAlgorithm\BellmanFordAlgorithm.csproj" />
+    <ProjectReference Include="..\GraphData\GraphData.csproj" />
+    <ProjectReference Include="..\GraphGenerator\GraphGenerator.csproj" />
+  </ItemGroup>
+
 </Project>

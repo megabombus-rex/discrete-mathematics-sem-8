@@ -4,6 +4,6 @@
     {
         public int StartNodeNr;
         public int EndNodeNr;
-        public int Capacity;
+        public int Weight;
     }
 }

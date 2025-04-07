@@ -51,7 +51,7 @@
                 var edgeClone = new Edge();
                 edgeClone.StartNodeNr = edge.StartNodeNr;
                 edgeClone.EndNodeNr = edge.EndNodeNr;
-                edgeClone.Capacity = edge.Capacity;
+                edgeClone.Weight = edge.Weight;
 
                 var nodeClone = nodeListClone.First(x => x.Number == edgeClone.StartNodeNr);
                 nodeClone.Edges.Add(edgeClone);

@@ -3,15 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShortestPathProblem_Algorithms", "ShortestPathProblem_Algorithms\ShortestPathProblem_Algorithms.csproj", "{3F9C3EAD-1DEF-4536-911F-DEBAAB0474FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShortestPathProblem_Algorithms", "ShortestPathProblem_Algorithms\ShortestPathProblem_Algorithms.csproj", "{3F9C3EAD-1DEF-4536-911F-DEBAAB0474FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphGenerator", "GraphGenerator\GraphGenerator.csproj", "{55CC3A99-315A-4A41-87A7-487877B94025}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphGenerator", "GraphGenerator\GraphGenerator.csproj", "{55CC3A99-315A-4A41-87A7-487877B94025}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BellmanFordAlgorithm", "BellmanFordAlgorithm\BellmanFordAlgorithm.csproj", "{4FCC22AA-3DD3-4308-BBD3-532664E7234D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BellmanFordAlgorithm", "BellmanFordAlgorithm\BellmanFordAlgorithm.csproj", "{4FCC22AA-3DD3-4308-BBD3-532664E7234D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphTraversalAlgorithms", "GraphTraversalAlgorithms\GraphTraversalAlgorithms.csproj", "{5DA8A8C9-77E5-443D-8A5D-4FDB158007C5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphData", "GraphData\GraphData.csproj", "{893A0617-91C8-452A-8005-D4A28DF25F11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphData", "GraphData\GraphData.csproj", "{893A0617-91C8-452A-8005-D4A28DF25F11}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +29,6 @@ Global
 		{4FCC22AA-3DD3-4308-BBD3-532664E7234D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FCC22AA-3DD3-4308-BBD3-532664E7234D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FCC22AA-3DD3-4308-BBD3-532664E7234D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5DA8A8C9-77E5-443D-8A5D-4FDB158007C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5DA8A8C9-77E5-443D-8A5D-4FDB158007C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5DA8A8C9-77E5-443D-8A5D-4FDB158007C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5DA8A8C9-77E5-443D-8A5D-4FDB158007C5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{893A0617-91C8-452A-8005-D4A28DF25F11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{893A0617-91C8-452A-8005-D4A28DF25F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{893A0617-91C8-452A-8005-D4A28DF25F11}.Release|Any CPU.ActiveCfg = Release|Any CPU

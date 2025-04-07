@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\GraphData\GraphData.csproj" />
     <ProjectReference Include="..\GraphGenerator\GraphGenerator.csproj" />
-    <ProjectReference Include="..\GraphTraversalAlgorithms\GraphTraversalAlgorithms.csproj" />
   </ItemGroup>
 
 </Project>

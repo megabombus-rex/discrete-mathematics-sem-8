@@ -25,7 +25,7 @@ namespace GraphGenerator.FileReaders
                 {
                     foreach (var edge in node.Edges)
                     {
-                        sw.WriteLine($"{node.Number} {edge.EndNodeNr} {edge.Capacity}");
+                        sw.WriteLine($"{node.Number} {edge.EndNodeNr} {edge.Weight}");
                     }
                 }
 
