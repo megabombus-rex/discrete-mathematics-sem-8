@@ -8,10 +8,11 @@ namespace BellmanFordAlgorithm
         public bool ShortestPathPossible(Graph graph, int source)
         {
             var distances = new List<int>(graph.GraphNodeCount);
+            var halfMax = (int)10e8;
 
             for (int i = 0; i < graph.GraphNodeCount; i++)
             {
-                distances.Add(int.MaxValue);
+                distances.Add(halfMax);
             }
             distances[source] = 0;
 
@@ -22,7 +23,7 @@ namespace BellmanFordAlgorithm
                 foreach (var edge in graph.Edges)
                 {
                     // relaxation
-                    if (distances[edge.StartNodeNr] != int.MaxValue && distances[edge.StartNodeNr] + edge.Weight < distances[edge.EndNodeNr])
+                    if (distances[edge.StartNodeNr] != halfMax && distances[edge.StartNodeNr] + edge.Weight < distances[edge.EndNodeNr])
                     {
                         if (i == negativeCycleNr)
                         {
@@ -33,6 +34,7 @@ namespace BellmanFordAlgorithm
                     distances[edge.EndNodeNr] = distances[edge.StartNodeNr] + edge.Weight;
                 }
             }
+            Console.WriteLine($"Distances: [{string.Join("|", distances)}]");
 
             return true;
         }
