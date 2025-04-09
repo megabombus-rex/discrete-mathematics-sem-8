@@ -35,7 +35,11 @@ namespace ShortestPathProblem_Algorithms.Tests.BellmanFord
             graph.AddNode(nodeD);
             graph.AddNode(nodeE);
 
-            Console.WriteLine(solverBF.ShortestPathPossible(graph, 0));
+            Console.WriteLine($"Running from source 0: {solverBF.ShortestPathPossible(graph, 0)}");
+            Console.WriteLine($"Running from source 1: {solverBF.ShortestPathPossible(graph, 1)}");
+            Console.WriteLine($"Running from source 2: {solverBF.ShortestPathPossible(graph, 2)}");
+            Console.WriteLine($"Running from source 3: {solverBF.ShortestPathPossible(graph, 3)}");
+            Console.WriteLine($"Running from source 4: {solverBF.ShortestPathPossible(graph, 4)}");
         }
     }
 }

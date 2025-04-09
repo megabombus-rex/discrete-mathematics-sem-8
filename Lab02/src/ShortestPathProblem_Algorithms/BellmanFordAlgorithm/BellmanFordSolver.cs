@@ -7,35 +7,42 @@ namespace BellmanFordAlgorithm
         // returns a shortest path from a source to every target, empty if there is a negative-weight cycle
         public bool ShortestPathPossible(Graph graph, int source)
         {
-            var distances = new List<int>(graph.GraphNodeCount);
-            var halfMax = (int)10e8;
+            var distances = new int[graph.GraphNodeCount];
+            var predecesors = new int?[graph.GraphNodeCount];
+            var infinity = (int)10e8;
+
+            Console.WriteLine($"If the value is {infinity} then it is not reachable at the end.");
 
             for (int i = 0; i < graph.GraphNodeCount; i++)
             {
-                distances.Add(halfMax);
+                distances[i] = infinity;
+                predecesors[i] = null;
             }
             distances[source] = 0;
 
-            var negativeCycleNr = graph.GraphNodeCount - 1;
 
-            for (int i = 0; i < graph.GraphNodeCount - 1; i++) 
-            { 
+            for (int i = 0; i < graph.GraphNodeCount; i++)
+            {
+                // relax each edge
                 foreach (var edge in graph.Edges)
                 {
-                    // relaxation
-                    if (distances[edge.StartNodeNr] != halfMax && distances[edge.StartNodeNr] + edge.Weight < distances[edge.EndNodeNr])
+                    if (distances[edge.EndNodeNr] > distances[edge.StartNodeNr] + edge.Weight)
                     {
-                        if (i == negativeCycleNr)
-                        {
-                            return false;
-                        }
+                        distances[edge.EndNodeNr] = distances[edge.StartNodeNr] + edge.Weight;
+                        predecesors[edge.EndNodeNr] = edge.StartNodeNr;
                     }
-
-                    distances[edge.EndNodeNr] = distances[edge.StartNodeNr] + edge.Weight;
                 }
             }
-            Console.WriteLine($"Distances: [{string.Join("|", distances)}]");
 
+            foreach (var edge in graph.Edges)
+            {
+                if (distances[edge.EndNodeNr] > distances[edge.StartNodeNr] + edge.Weight)
+                {
+                    return false;
+                }
+            }
+
+            Console.WriteLine($"Distances: [{string.Join("|", distances)}]");
             return true;
         }
     }
