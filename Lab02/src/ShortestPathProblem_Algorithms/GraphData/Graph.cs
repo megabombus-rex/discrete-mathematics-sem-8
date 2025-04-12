@@ -1,4 +1,6 @@
-﻿namespace GraphData
+﻿using MathNet.Numerics.LinearAlgebra;
+
+namespace GraphData
 {
     public class Graph
     {
@@ -63,6 +65,31 @@
             }
 
             return clone;
+        }
+
+        public int[][] TranslateGraphToAdjacencyMatrix()
+        {
+            var matrix = new int[GraphNodeCount][];
+
+            // add rows
+            for (int i = 0; i < GraphNodeCount; i++)
+            {
+                matrix[i] = new int[GraphNodeCount];
+            }
+
+            // fill the 
+            foreach (var edge in Edges) 
+            {
+                matrix[edge.StartNodeNr][edge.EndNodeNr] = edge.Weight;
+            }
+
+            return matrix;
+        }
+
+        public Matrix<int> TranslateGraphToAdjacencyMatrixPlus()
+        {
+            var oldMatrix = TranslateGraphToAdjacencyMatrix();
+            return CreateMatrix.SparseOfRowArrays<int>(oldMatrix);
         }
     }
 }
