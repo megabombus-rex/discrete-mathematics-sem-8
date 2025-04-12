@@ -13,4 +13,8 @@
     <ProjectReference Include="..\GraphGenerator\GraphGenerator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Results\BellmanFord\" />
+  </ItemGroup>
+
 </Project>

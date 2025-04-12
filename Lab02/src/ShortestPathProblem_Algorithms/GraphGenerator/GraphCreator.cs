@@ -2,7 +2,7 @@
 
 namespace GraphGenerator
 {
-    public class GraphGenerator
+    public class GraphCreator
     {
         public Graph GenerateGraphWithNegativeWeights(int nodeCount, double temperature, int weight)
         {

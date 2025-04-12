@@ -38,11 +38,13 @@ namespace BellmanFordAlgorithm
             {
                 if (distances[edge.EndNodeNr] > distances[edge.StartNodeNr] + edge.Weight)
                 {
+                    Console.WriteLine("Negative cycle detected.");
                     return false;
                 }
             }
 
-            Console.WriteLine($"Distances: [{string.Join("|", distances)}]");
+            //Console.WriteLine($"Distances: [{string.Join("|", distances)}]");
+            Console.WriteLine("Found sources.");
             return true;
         }
     }
