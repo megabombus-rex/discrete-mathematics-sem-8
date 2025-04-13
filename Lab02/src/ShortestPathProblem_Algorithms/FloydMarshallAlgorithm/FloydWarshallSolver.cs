@@ -16,7 +16,7 @@ namespace FloydMarshallAlgorithm
                 for (int j = 0; j < n; j++)
                 {
                     row[j] = infinity;
-                    Console.WriteLine($"If the value is {infinity} then it is not reachable at the end.");
+                    //Console.WriteLine($"If the value is {infinity} then it is not reachable at the end.");
                 }
                 distances[i] = row;
             }

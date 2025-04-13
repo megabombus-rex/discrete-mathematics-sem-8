@@ -42,30 +42,30 @@ for negW in [True, False]:
     subset = df[df['negative_weights_included'] == negW]
     for not_detected in [True, False]:
         second_subset = subset[df['negative_cycle_not_detected'] == not_detected]
-        for value in [30, 50, 100]:
+        #for value in [30, 50, 100]:
             # this should be on top, then neg_weights -> then neg_cycle
-            third_subset = second_subset[df['weight'] == value]
+            #third_subset = second_subset[df['weight'] == value]
 
-            plt.figure(figsize=(12, 6))
-            sns.violinplot(
-                x='computed_edge_count',
-                y='runtime_in_ms',
-                data=third_subset,
-                inner='quart',
-                scale='width',
-                palette='Set2'
-            )
+        plt.figure(figsize=(12, 6))
+        sns.violinplot(
+            x='computed_edge_count',
+            y='runtime_in_ms',
+            data=second_subset,
+            inner='quart',
+            scale='width',
+            palette='Set2'
+        )
 
-            label = 'with' if negW else 'without'
-            second_label = 'not detected' if not_detected else 'detected'
-            
-            if negW:
-                plt.title(f'Runtime Distribution {label} Negative Weights negative cycle {second_label}, weights from {-value} to {value}')
-            else:
-                plt.title(f'Runtime Distribution {label} Negative Weights negative cycle {second_label} weights from 0 to {value}')
-                    
-            plt.xlabel('Computed Edge Count (node_count * (temperature + 1))')
-            plt.ylabel('Runtime (ms)')
-            plt.xticks(rotation=45)
-            plt.tight_layout()
-            plt.show()
+        label = 'with' if negW else 'without'
+        second_label = 'not detected' if not_detected else 'detected'
+        
+        if negW:
+            plt.title(f'Runtime Distribution {label} Negative Weights negative cycle {second_label}, weights from -100 to 100')
+        else:
+            plt.title(f'Runtime Distribution {label} Negative Weights negative cycle {second_label} weights from 0 to 100')
+                
+        plt.xlabel('Computed Edge Count (node_count * (temperature + 1))')
+        plt.ylabel('Runtime (ms)')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()

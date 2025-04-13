@@ -9,16 +9,15 @@ namespace ShortestPathProblem_Algorithms.Tests.FloydWarshall
         {
             var solverFW = new FloydWarshallSolver();
 
-            var temperatures = new double[] { 0.5, 1.0, 2.0, 3.0 };
+            var temperatures = new double[] { 0.5, 1.0, 2.0 };
 
-            var graphSizes = new int[] { 10, 100, 500, 1000 };
+            var graphSizes = new int[] { 10, 100, 500, 1000, 2000 };
 
             var weights_neg = new int[] { 30, 50, 100 };
             var weights_pos = new int[] { 30, 50, 100 };
 
             var filepath = $"{Environment.CurrentDirectory}\\..\\..\\..\\Results\\FloydWarshall\\FloydWarshallTests.csv";
             var title = $"FWSolverTest x100 iterations, 5k V, 20k E max, {DateTime.Now}";
-            var resultList = new List<string>(graphSizes.Length * temperatures.Length * (weights_neg.Length + weights_pos.Length));
 
             // newline - test, date
             // node_count, temperature, final_edge_count, runtime_in_ms, path_was_found, negative_weights_included
@@ -27,19 +26,22 @@ namespace ShortestPathProblem_Algorithms.Tests.FloydWarshall
 
             var taskCount = 10;
             var iterationsPerTask = iterationsLimit / taskCount;
+            var resultList = new List<string>((graphSizes.Length * temperatures.Length * (weights_neg.Length + weights_pos.Length) * iterationsLimit));
 
             var tasks = new Task[taskCount];
 
             for (int t = 0; t < taskCount; t++)
             {
-                var it = t * taskCount;
-                var itC = (t + 1) * iterationsPerTask;
-                var task = new Task(() =>
+                var taskNr = t;
+                int iter = iterationsPerTask;
+                tasks[t] = Task.Run(() =>
                 {
+                    Console.WriteLine($"Starting task {taskNr}.");
                     var graphCreator = new GraphGenerator.GraphCreator();
                     //Console.WriteLine($"Running task {t}.");
-                    for (var iteration = it; iteration < iterationsPerTask; iteration++)
-                    {
+                    int iter = iterationsPerTask;
+                    int counter = 0;
+                    while(counter < iter) {
                         //Console.WriteLine($"Iteration {iteration}.");
                         for (int i = 0; i < graphSizes.Length; i++)
                         {
@@ -53,6 +55,7 @@ namespace ShortestPathProblem_Algorithms.Tests.FloydWarshall
                                     var runtime = (DateTime.Now - start).TotalMilliseconds;
                                     lock (resultList)
                                     {
+                                        Console.WriteLine($"Adding result for graph size {graphSizes[i]}. Iteration: {counter}. Task: {taskNr}.");
                                         resultList.Add(new FloydWarshallRunData(graphSizes[i], temperatures[j], graph.Edges.Count, runtime, found, true, weights_neg[tn]).ToString());
                                     }
                                 }
@@ -66,16 +69,15 @@ namespace ShortestPathProblem_Algorithms.Tests.FloydWarshall
                                     var runtime = (DateTime.Now - start).TotalMilliseconds;
                                     lock (resultList)
                                     {
+                                        Console.WriteLine($"Adding result for graph size {graphSizes[i]}. Iteration: {counter}. Task: {taskNr}.");
                                         resultList.Add(new FloydWarshallRunData(graphSizes[i], temperatures[j], graph.Edges.Count, runtime, found, false, weights_neg[tp]).ToString());
                                     }
                                 }
                             }
                         }
+                        counter++;
                     }
                 });
-
-                task.Start();
-                tasks[t] = task;
             }
 
             Task.WaitAll(tasks);
