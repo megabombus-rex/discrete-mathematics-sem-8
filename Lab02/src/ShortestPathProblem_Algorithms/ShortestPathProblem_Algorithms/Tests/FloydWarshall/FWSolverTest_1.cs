@@ -1,29 +1,29 @@
-﻿using BellmanFordAlgorithm;
+﻿using FloydMarshallAlgorithm;
 using ShortestPathProblem_Algorithms.DataSavers;
 
-namespace ShortestPathProblem_Algorithms.Tests.BellmanFord
+namespace ShortestPathProblem_Algorithms.Tests.FloydWarshall
 {
-    public class BFSolverTest_2
+    public class FWSolverTest_1
     {
         public void Run()
         {
-            BellmanFordSolver solverBF = new BellmanFordSolver();
+            var solverFW = new FloydWarshallSolver();
 
             var temperatures = new double[] { 0.5, 1.0, 2.0, 3.0 };
 
-            var graphSizes = new int[] { 10, 100, 500, 1000, 5000 };
+            var graphSizes = new int[] { 10, 100, 500, 1000 };
 
             var weights_neg = new int[] { 30, 50, 100 };
             var weights_pos = new int[] { 30, 50, 100 };
 
-            var filepath = $"{Environment.CurrentDirectory}\\..\\..\\..\\Results\\BellmanFord\\BellmanFordTests.csv";
-            var title = $"BFSolverTest x100 iterations, 5k V, 20k E max, {DateTime.Now}";
+            var filepath = $"{Environment.CurrentDirectory}\\..\\..\\..\\Results\\FloydWarshall\\FloydWarshallTests.csv";
+            var title = $"FWSolverTest x100 iterations, 5k V, 20k E max, {DateTime.Now}";
             var resultList = new List<string>(graphSizes.Length * temperatures.Length * (weights_neg.Length + weights_pos.Length));
 
             // newline - test, date
             // node_count, temperature, final_edge_count, runtime_in_ms, path_was_found, negative_weights_included
 
-            var iterationsLimit = 100;
+            var iterationsLimit = 10;
 
             var taskCount = 10;
             var iterationsPerTask = iterationsLimit / taskCount;
@@ -33,7 +33,7 @@ namespace ShortestPathProblem_Algorithms.Tests.BellmanFord
             for (int t = 0; t < taskCount; t++)
             {
                 var it = t * taskCount;
-                var itC = t * iterationsPerTask;
+                var itC = (t + 1) * iterationsPerTask;
                 var task = new Task(() =>
                 {
                     var graphCreator = new GraphGenerator.GraphCreator();
@@ -49,10 +49,11 @@ namespace ShortestPathProblem_Algorithms.Tests.BellmanFord
                                 {
                                     var graph = graphCreator.GenerateGraphWithNegativeWeights(graphSizes[i], temperatures[j], weights_neg[tn]);
                                     var start = DateTime.Now;
-                                    var found = solverBF.ShortestPathPossible(graph, 0);
+                                    var found = solverFW.ShortestPathArrayWithNoNegativeLoops(graph);
                                     var runtime = (DateTime.Now - start).TotalMilliseconds;
-                                    lock (resultList){
-                                        resultList.Add(new BellmanFordRunData(graphSizes[i], temperatures[j], graph.Edges.Count, runtime, found, true).ToString());
+                                    lock (resultList)
+                                    {
+                                        resultList.Add(new FloydWarshallRunData(graphSizes[i], temperatures[j], graph.Edges.Count, runtime, found, true, weights_neg[tn]).ToString());
                                     }
                                 }
 
@@ -61,17 +62,16 @@ namespace ShortestPathProblem_Algorithms.Tests.BellmanFord
                                     var graph = graphCreator.GenerateGraphOnlyNonNegativeWeights(graphSizes[i], temperatures[j], weights_pos[tp]);
 
                                     var start = DateTime.Now;
-                                    var found = solverBF.ShortestPathPossible(graph, 0);
+                                    var found = solverFW.ShortestPathArrayWithNoNegativeLoops(graph);
                                     var runtime = (DateTime.Now - start).TotalMilliseconds;
                                     lock (resultList)
                                     {
-                                        resultList.Add(new BellmanFordRunData(graphSizes[i], temperatures[j], graph.Edges.Count, runtime, found, false).ToString());
+                                        resultList.Add(new FloydWarshallRunData(graphSizes[i], temperatures[j], graph.Edges.Count, runtime, found, false, weights_neg[tp]).ToString());
                                     }
                                 }
                             }
                         }
                     }
-
                 });
 
                 task.Start();

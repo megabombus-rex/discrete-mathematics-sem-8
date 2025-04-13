@@ -9,12 +9,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BellmanFordAlgorithm\BellmanFordAlgorithm.csproj" />
+    <ProjectReference Include="..\FloydMarshallAlgorithm\FloydWarshallAlgorithm.csproj" />
     <ProjectReference Include="..\GraphData\GraphData.csproj" />
     <ProjectReference Include="..\GraphGenerator\GraphGenerator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Results\BellmanFord\" />
+    <Folder Include="Results\FloydWarshall\" />
   </ItemGroup>
 
 </Project>

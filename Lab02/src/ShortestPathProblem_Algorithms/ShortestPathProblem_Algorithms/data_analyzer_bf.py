@@ -23,7 +23,7 @@ except pd.errors.ParserError as e:
     exit(1)
 
 # Drop rows with missing values in required columns
-required_columns = ['node_count', 'temperature', 'runtime_in_ms', 'negative_weights_included']
+required_columns = ['node_count', 'temperature', 'runtime_in_ms', 'path_was_found', 'negative_weights_included']
 df = df.dropna(subset=required_columns)
 
 # Ensure columns are numeric (invalid strings will turn into NaN and get dropped)
@@ -39,21 +39,24 @@ df['computed_edge_count'] = df['node_count'] * (df['temperature'] + 1)
 sns.set_theme(style="whitegrid")
 for value in [True, False]:
     subset = df[df['negative_weights_included'] == value]
+    for found in [True, False]:
+        second_subset = subset[df['path_was_found'] == found]
 
-    plt.figure(figsize=(12, 6))
-    sns.violinplot(
-        x='computed_edge_count',
-        y='runtime_in_ms',
-        data=subset,
-        inner='quart',
-        scale='width',
-        palette='Set2'
-    )
+        plt.figure(figsize=(12, 6))
+        sns.violinplot(
+            x='computed_edge_count',
+            y='runtime_in_ms',
+            data=second_subset,
+            inner='quart',
+            scale='width',
+            palette='Set2'
+        )
 
-    label = 'with' if value else 'without'
-    plt.title(f'Runtime Distribution {label} Negative Weights')
-    plt.xlabel('Computed Edge Count (node_count * (temperature + 1))')
-    plt.ylabel('Runtime (ms)')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
+        label = 'with' if value else 'without'
+        second_label = 'found' if found else 'not found'
+        plt.title(f'Runtime Distribution {label} Negative Weights path {second_label}')
+        plt.xlabel('Computed Edge Count (node_count * (temperature + 1))')
+        plt.ylabel('Runtime (ms)')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()

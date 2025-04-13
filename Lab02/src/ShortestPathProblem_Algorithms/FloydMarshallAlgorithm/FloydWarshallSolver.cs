@@ -1,45 +1,99 @@
 ﻿using GraphData;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace FloydMarshallAlgorithm
 {
     public class FloydWarshallSolver
     {
-        public Matrix<int> ShortestPathArray(Graph graph)
+        public bool ShortestPathArrayWithNoNegativeLoops(Graph graph)
         {
-            var matrix = graph.TranslateGraphToAdjacencyMatrixPlus();
+            var n = graph.GraphNodeCount;
+            var distances = new int[n][];
+            var infinity = (int)10e8;
 
-            return ShortestPathPossible(matrix);
-        }
-
-        public Matrix<int> ShortestPathPossible(Matrix<int> graph)
-        {
-            var n = graph.RowCount;
-            var D0 = graph.Clone();
-
-            // D0 is D(1 - 1)
-            for (int k = 1; k < n; k++)
+            for (int i = 0; i < n; i++)
             {
-                var Dk = D0.Clone();
+                var row = new int[n];
+                for (int j = 0; j < n; j++)
+                {
+                    row[j] = infinity;
+                    Console.WriteLine($"If the value is {infinity} then it is not reachable at the end.");
+                }
+                distances[i] = row;
+            }
+
+            foreach (var edge in graph.Edges) 
+            {
+                distances[edge.StartNodeNr][edge.EndNodeNr] = edge.Weight;
+            }
+
+            // O(n^3)
+            for (int k = 0; k < n; k++)
+            {
+                // O(n^2)
                 for (int i = 0; i < n; i++)
                 {
+                    // O(n)
                     for (int j = 0; j < n; j++)
                     {
+                        if (distances[i][j] > distances[i][k] + distances[k][j])
+                        {
+                            distances[i][j] = distances[i][k] + distances[k][j];
+                        }
                     }
                 }
             }
 
-            // wrong
-            return D0.Clone();
+            for (int i = 0; i < n; i++)
+            {
+                if (distances[i][i] < 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
-        private int CalculateDistanceRecursive(Matrix<int> adjacencyMatrix, int k, int i, int j)
+        public int[][] ShortestPathArray(Graph graph)
         {
-            if (k == 0)
+            var n = graph.GraphNodeCount;
+            var distances = new int[n][];
+            var infinity = (int)10e8;
+
+            for (int i = 0; i < n; i++)
             {
-               // weight
-               return adjacencyMatrix[i, j];
+                var row = new int[n];
+                for (int j = 0; j < n; j++)
+                {
+                    row[j] = infinity;
+                    Console.WriteLine($"If the value is {infinity} then it is not reachable at the end.");
+                }
+                distances[i] = row;
             }
+
+            foreach (var edge in graph.Edges)
+            {
+                distances[edge.StartNodeNr][edge.EndNodeNr] = edge.Weight;
+            }
+
+            // O(n^3)
+            for (int k = 0; k < n; k++)
+            {
+                // O(n^2)
+                for (int i = 0; i < n; i++)
+                {
+                    // O(n)
+                    for (int j = 0; j < n; j++)
+                    {
+                        if (distances[i][j] > distances[i][k] + distances[k][j])
+                        {
+                            distances[i][j] = distances[i][k] + distances[k][j];
+                        }
+                    }
+                }
+            }
+
+            return distances;
         }
     }
 }

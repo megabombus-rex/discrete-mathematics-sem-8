@@ -1,6 +1,6 @@
 ﻿namespace ShortestPathProblem_Algorithms.DataSavers
 {
-    public class BellmanFordSaver
+    public class FinalDataSaver
     {
         public void SaveToCSV(string filename, string testTitle, List<string> lines)
         {
