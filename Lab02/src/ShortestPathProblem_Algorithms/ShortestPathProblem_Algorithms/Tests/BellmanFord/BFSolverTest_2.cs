@@ -20,14 +20,13 @@ namespace ShortestPathProblem_Algorithms.Tests.BellmanFord
 
             var temperatures = new double[] { 0.5, 1.0, 2.0, 3.0 };
 
-            var graphSizes = new int[] { 10, 100, 500, 1000, 10000, 50000 };
+            var graphSizes = new int[] { 10, 100, 500, 1000, 5000 };
 
             var weights_neg = new int[] { 30, 50, 100 };
             var weights_pos = new int[] { 30, 50, 100 };
-            var graphCreator = new GraphGenerator.GraphCreator();
 
             var filepath = $"{Environment.CurrentDirectory}\\..\\..\\..\\Results\\BellmanFord\\BellmanFordTests.csv";
-            var title = $"BFSolverTest x100 iterations, {DateTime.Now}";
+            var title = $"BFSolverTest x100 iterations, 5k V, 20k E max, {DateTime.Now}";
             var resultList = new List<string>(graphSizes.Length * temperatures.Length * (weights_neg.Length + weights_pos.Length));
 
             // newline - test, date
@@ -46,6 +45,7 @@ namespace ShortestPathProblem_Algorithms.Tests.BellmanFord
                 var itC = t * iterationsPerTask;
                 var task = new Task(() =>
                 {
+                    var graphCreator = new GraphGenerator.GraphCreator();
                     //Console.WriteLine($"Running task {t}.");
                     for (var iteration = it; iteration < iterationsPerTask; iteration++)
                     {
@@ -82,6 +82,8 @@ namespace ShortestPathProblem_Algorithms.Tests.BellmanFord
                     }
 
                 });
+
+                task.Start();
                 tasks[t] = task;
             }
 
