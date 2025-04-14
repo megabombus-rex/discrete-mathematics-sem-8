@@ -66,6 +66,33 @@ for negW in [True, False]:
                 
         plt.xlabel('Computed Edge Count (node_count * (temperature + 1))')
         plt.ylabel('Runtime (ms)')
+        plt.yscale('log')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+        
+        sns.pointplot(
+        x='computed_edge_count',
+        y='runtime_in_ms',
+        data=second_subset,
+        estimator='mean',
+        errorbar='sd',  # Standard deviation
+        color='black',
+        markers='D',
+        linestyles='--'
+        )
+
+        label = 'with' if negW else 'without'
+        second_label = 'not detected' if not_detected else 'detected'
+        
+        if negW:
+            plt.title(f'Runtime Distribution {label} Negative Weights negative cycle {second_label}, weights from -100 to 100')
+        else:
+            plt.title(f'Runtime Distribution {label} Negative Weights negative cycle {second_label} weights from 0 to 100')
+                
+        plt.xlabel('Computed Edge Count (node_count * (temperature + 1))')
+        plt.ylabel('Runtime (ms)')
+        plt.yscale('log')
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.show()

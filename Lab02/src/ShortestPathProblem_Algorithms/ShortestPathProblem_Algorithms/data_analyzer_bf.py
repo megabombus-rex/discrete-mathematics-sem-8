@@ -41,7 +41,6 @@ for value in [True, False]:
     subset = df[df['negative_weights_included'] == value]
     for found in [True, False]:
         second_subset = subset[df['path_was_found'] == found]
-
         plt.figure(figsize=(12, 6))
         sns.violinplot(
             x='computed_edge_count',
@@ -54,9 +53,41 @@ for value in [True, False]:
 
         label = 'with' if value else 'without'
         second_label = 'found' if found else 'not found'
-        plt.title(f'Runtime Distribution {label} Negative Weights path {second_label}')
+        
+        if value:
+            plt.title(f'Runtime Distribution {label} negative weights. Path {second_label}, weights from -100 to 100')
+        else:
+            plt.title(f'Runtime Distribution {label} negative weights. Path {second_label} weights from 0 to 100')
+                
         plt.xlabel('Computed Edge Count (node_count * (temperature + 1))')
         plt.ylabel('Runtime (ms)')
+        #plt.yscale('log')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+        
+        sns.pointplot(
+        x='computed_edge_count',
+        y='runtime_in_ms',
+        data=second_subset,
+        estimator='mean',
+        errorbar='sd',  # Standard deviation
+        color='black',
+        markers='D',
+        linestyles='--'
+        )
+
+        label = 'with' if value else 'without'
+        second_label = 'found' if found else 'not found'
+        
+        if value:
+            plt.title(f'Runtime Distribution {label} negative weights. Path {second_label}, weights from -100 to 100')
+        else:
+            plt.title(f'Runtime Distribution {label} negative weights. Path {second_label} weights from 0 to 100')
+                
+        plt.xlabel('Computed Edge Count (node_count * (temperature + 1))')
+        plt.ylabel('Runtime (ms)')
+        #plt.yscale('log')
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.show()
