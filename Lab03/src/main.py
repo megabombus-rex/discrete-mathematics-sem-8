@@ -1,13 +1,16 @@
 import networkx as nx
 import numpy as np
 from algorithms import *
+from graph_generators import *
+from drawing_tools import *
 
 def main(maxcut:MaxCut, graph_size:int):
-    G = nx.Graph()
-    G.add_nodes_from(np.arange(0,graph_size,1))
-    # generate nodes
-    G.add_edge()
-    maxcut(G)
+    graph = GraphGenerator().generate_simple_graph_temperature(graph_size, 10)
+    
+    (max_value, partition) = maxcut(graph)
+
+    Painter.visualize_cut(graph,partition)
+    print(f'Max count value is: {max_value}')
 
 if __name__ == '__main__':
-    main(BruteForceMaxCut())
+    main(BruteForceMaxCut(), 15)
