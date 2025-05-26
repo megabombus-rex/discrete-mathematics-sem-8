@@ -4,6 +4,7 @@ import math
 import random
 
 class GraphGenerator():
+    @classmethod
     def generate_simple_graph_temperature(self, size, temperature):
         graph = nx.Graph()
         graph.add_nodes_from(np.arange(0,size,1))
