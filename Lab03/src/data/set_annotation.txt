@@ -11,3 +11,16 @@ planar,
 and random 
 graphs with weights taking the values 1, 0, or −1. 
 Burer et al. (2001) and Festa et al. (2002) used these graphs in their experiments.
+
+Set2:
+This set contains 30 instances described in Festa et al. (2002). 
+The first 10 are small-size instances with an average of 128 vertices and 300 edges,
+the second 10 instances are medium-size graphs with 1,000 vertices and density equal to 0.60%, 
+and the last 10 are large-size instances with 2,744 vertices and density equal to 0.22%. 
+The weight values are either 1, 0, or −1. 
+
+Set 3: 
+The four instances in this set come from the 7th DIMACS Implementation Challenge. 
+The number of vertices ranges from 512 to 3,375 and the number of edges from 1,536 to 10,125. 
+Burer et al. (2001) used all four instances in their experiments. 
+Festa et al. (2002) considered only one.
