@@ -72,14 +72,13 @@ class GoemansWilliamsonMaxCutSolver(MaxCutSolver):
         
         W = np.zeros((n, n))
         for u, v, data in graph.edges(data=True):
-            weight = data.get("weight", 1)
             i, j = index[u], index[v]
-            W[i, j] = W[j, i] = weight
+            W[i, j] = W[j, i] = 1
             
         X = cp.Variable((n, n), PSD=True)
         
         # Objective: maximize 0.25 * sum of w_ij * (1 - X_ij)
-        objective = cp.Maximize(0.25 * cp.sum(cp.multiply(W, 1 - X)))
+        objective = cp.Maximize(0.25 * cp.sum(1 - X))
         
         # Constraints: diagonal elements of X must be 1
         constraints = [cp.diag(X) == 1]

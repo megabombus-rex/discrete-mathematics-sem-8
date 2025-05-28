@@ -1,0 +1,3 @@
+max_cut_value,time_in_nanoseconds,solver
+None,63588956189300,GuirobiMaxCutSolver
+None,2317060300,GuirobiMaxCutSolver
