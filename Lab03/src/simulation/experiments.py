@@ -13,7 +13,8 @@ class Experiment:
         times = []
         solutions = []
         
-        if solver is BruteForceMaxCutSolver:
+        if isinstance(solver, BruteForceMaxCutSolver):
+            print(f'Is brute solver....')
             start = time.perf_counter_ns()
             (max_value, partition) = solver(problem_graph)
             end = time.perf_counter_ns()
