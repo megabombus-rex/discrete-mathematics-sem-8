@@ -6,39 +6,73 @@ from algorithms import *
 from graph_creation import *
 from drawing_tools import *
 from simulation.experiments import *
+import os
 
+def generate_graphs():
+    for i in range(20):
+        GraphGenerator.generate_simple_graph_temperature(20, 10)
+
+    for i in range(20):
+        GraphGenerator.generate_simple_graph_temperature(20, 5)
+
+    for i in range(20):
+        GraphGenerator.generate_simple_graph_temperature(20, 2)
+
+    for i in range(20):
+        GraphGenerator.generate_simple_graph_temperature(15, 10)
+
+    for i in range(20):
+        GraphGenerator.generate_simple_graph_temperature(15, 5)
+
+    for i in range(20):
+        GraphGenerator.generate_simple_graph_temperature(15, 2)
+
+    for i in range(20):
+        GraphGenerator.generate_simple_graph_temperature(10, 10)
+
+    for i in range(20):
+        GraphGenerator.generate_simple_graph_temperature(10, 5)
+
+    for i in range(20):
+        GraphGenerator.generate_simple_graph_temperature(10, 2)
+        
 def main(maxcut:MaxCutSolver):
+    #generate_graphs()    
     exp = Experiment()
-    #graph = GraphGenerator.generate_simple_graph_temperature(graph_size, 10)
-    #graph1 = RudyGraphReader.read_rud("data\\set1\\g1.rud")
-    #graph2 = RudyGraphReader.read_rud("data\\set1\\g2.rud")
-    graph = RudyGraphReader.read_rud("data\\set2\\sg3dl051000.mc")
-    exp(graph, maxcut, 10)
-    graph = RudyGraphReader.read_rud("data\\set2\\sg3dl052000.mc")
-    exp(graph, maxcut, 10)
-    graph = RudyGraphReader.read_rud("data\\set2\\sg3dl053000.mc")
-    exp(graph, maxcut, 10)
-    graph = RudyGraphReader.read_rud("data\\set2\\sg3dl054000.mc")
-    exp(graph, maxcut, 10)
-    graph = RudyGraphReader.read_rud("data\\set2\\sg3dl055000.mc")
-    exp(graph, maxcut, 10)
-    graph = RudyGraphReader.read_rud("data\\set2\\sg3dl056000.mc")
-    exp(graph, maxcut, 10)
-    graph = RudyGraphReader.read_rud("data\\set2\\sg3dl057000.mc")
-    exp(graph, maxcut, 10)
-    graph = RudyGraphReader.read_rud("data\\set2\\sg3dl058000.mc")
-    exp(graph, maxcut, 10)
-    graph = RudyGraphReader.read_rud("data\\set2\\sg3dl059000.mc")
-    exp(graph, maxcut, 10)
+
+
+    files = [f for f in os.listdir('data/set6') if os.path.isfile(os.path.join('data/set6', f))]
+    for f in range(len(files)):
+        files[f] = 'data/set6/' + files[f]
+        print(files[f])
     
+    for file in files:
+        graph = RudyGraphReader.read_rud(file)
+        exp(graph, file, maxcut, 10)    
     
+    #if isinstance(maxcut, GoemansWilliamsonMaxCutSolver) or isinstance(maxcut, QAOAMaxCutSolver):
+    #    for i in range(1, 10):
+    #        graph = RudyGraphReader.read_rud(f"data\\set4\\bqp-50-{i}.txt")
+    #        exp(graph, maxcut, 10)
+    #        
+    #    for i in range(1, 10):
+    #        graph = RudyGraphReader.read_rud(f"data\\set2\\sg3dl05{i}000.mc")
+    #        exp(graph, maxcut, 10)
+    #        
+    #    # only 800 nodes instances
+    #    for i in range(1, 21):
+    #        graph = RudyGraphReader.read_rud(f"data\\set1\\g{i}.rud")
+    #        exp(graph, maxcut, 10)
+        
     #Painter.visualize_graph(graph)
     
     #(max_value, partition) = maxcut(graph)
 
-#    Painter.visualize_cut(graph,partition)
+    #Painter.visualize_cut(graph,partition)
     #print(f'Max count value is: {max_value}')
 
 if __name__ == '__main__':
-    #main(GuirobiMaxCutSolver(), 10)
-    main(BruteForceMaxCutSolver())
+    #main(GuirobiMaxCutSolver())
+    #main(BruteForceMaxCutSolver())
+    #main(GoemansWilliamsonMaxCutSolver())
+    main(QAOACirqMaxCutSolver())
