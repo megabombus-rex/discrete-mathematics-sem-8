@@ -4,9 +4,8 @@ import cvxpy as cp
 from itertools import product
 import gurobipy as gp
 from gurobipy import GRB
-from constants import GOEMANS_WILLIAMSON_RETRIES_COUNT, QAOA_RETRIES_COUNT, QAOA_DEPTH
+from constants import GOEMANS_WILLIAMSON_RETRIES_COUNT, QAOA_RETRIES_COUNT
 import cirq
-from cirq.contrib.svg import SVGCircuit
 import sympy
 
 class MaxCutSolver:
@@ -124,28 +123,6 @@ class GoemansWilliamsonMaxCutSolver(MaxCutSolver):
 class QAOACirqMaxCutSolver(MaxCutSolver):
     def __init__(self):
         self.repetitions = QAOA_RETRIES_COUNT
-        self.depth = QAOA_DEPTH
-    
-    def estimate_cost(graph, samples):
-        """Estimate the cost function of the QAOA on the given graph using the
-        provided computational basis bitstrings. No weights used."""
-        cost_value = 0.0
-
-        # Loop over edge pairs and compute contribution.
-        for u, v in graph.edges():
-            u_samples = samples[str(u)]
-            v_samples = samples[str(v)]
-
-            # Determine if it was a +1 or -1 eigenvalue.
-            u_signs = (-1)**u_samples
-            v_signs = (-1)**v_samples
-            term_signs = u_signs * v_signs
-
-            # Add scaled term to total cost.
-            term_val = np.mean(term_signs)
-            cost_value += term_val
-
-        return -cost_value
     
     def __call__(self, graph):
         node_qubit_map = {node: cirq.LineQubit(node) for node in graph.nodes()}
@@ -154,89 +131,58 @@ class QAOACirqMaxCutSolver(MaxCutSolver):
         beta = sympy.Symbol('beta')
 
         qaoa_circuit = cirq.Circuit(
-            # Apply Hadamard gates
+            # Apply Hadamard gates for each qubit
             cirq.H.on_each(*node_qubit_map.values()),
 
-            # Do ZZ operations between neighbors u, v in the graph. Here, u is a qubit,
-            # v is its neighboring qubit, and w is the weight between these qubits.
+            # Do ZZ operations between neighbors u, v in the graph. Here, u is a qubit, and v is its neighboring qubit.
             (cirq.ZZ(node_qubit_map[u], node_qubit_map[v]) ** (alpha) for (u, v) in graph.edges()),
 
-            # Apply X operations along all nodes of the graph. Again working_graph's
-            # nodes are the working_qubits. Note here we use a moment
-            # which will force all of the gates into the same line.
             cirq.Moment(cirq.X(qubit) ** beta for qubit in node_qubit_map.values()),
 
             # All relevant things can be computed in the computational basis.
-            (cirq.measure(qubit) for qubit in node_qubit_map.values()),
+            (cirq.measure(qubit, key=str(node)) for node, qubit in node_qubit_map.items()),
         )
         
-        # Step 3: Optimize angles
-        init_params = np.random.uniform(0, np.pi, 2 * self.depth)
-
-        # Step 4: Rebuild and run circuit with optimal params
-        circuit = cirq.Circuit()
-        circuit.append(cirq.H.on_each(*qubits))
-        
-        best_params = self.expectation()
-
-        for layer in range(self.depth):
-            gamma = best_params[layer]
-            beta = best_params[self.depth + layer]
-            for u, v in edges:
-                circuit.append(cirq.ZZ(node_qubit_map[u], node_qubit_map[v]) ** (-gamma / np.pi))
-            for q in qubits:
-                circuit.append(cirq.rx(2 * beta)(q))
-
-        circuit.append(cirq.measure(*qubits, key='result'))
-
         sim = cirq.Simulator()
-        result = sim.run(circuit, repetitions=self.repetitions)
-        bitstrings = result.measurements['result']
+        exp_values, par_values = self.optimize_AB(sim=sim, circuit=qaoa_circuit, graph=graph, alpha=alpha, beta=beta)
+        
+        # Find the indices of the best (maximum) expectation value
+        best_i, best_j = np.unravel_index(np.argmax(exp_values), exp_values.shape)
 
-        # Step 5: Analyze best cut
-        counts = Counter(tuple(b) for b in bitstrings)
-        most_common_bitstring, _ = counts.most_common(1)[0]
-        max_cut = self.bitstring_to_cut(most_common_bitstring)
+        # Extract best alpha and beta
+        best_alpha, best_beta = par_values[best_i][best_j]
 
-        # Optional: print solution
-        print("Best bitstring:", most_common_bitstring)
-        print("Max cut value:", max_cut)
+        # Rebuild circuit with best parameters
+        final_circuit = cirq.Circuit(
+            cirq.H.on_each(*node_qubit_map.values()),
+            
+            # Use actual numeric values now, not symbols
+            (cirq.ZZ(node_qubit_map[u], node_qubit_map[v]) ** best_alpha for (u, v) in graph.edges()),
+            
+            cirq.Moment(cirq.X(q) ** best_beta for q in node_qubit_map.values()),
 
-        return most_common_bitstring, max_cut
+            cirq.measure(*node_qubit_map.values(), key='z'))
+        
+        result = sim.run(final_circuit, repetitions=20000)
+
+        # Convert results into bitstrings
+        bitstrings = result.measurements['z']
+
+        best_cut = 0
+        best_assignment = None
+
+        for bits in bitstrings:
+            current_cut = self.cut_value(bits, graph)
+            if current_cut > best_cut:
+                best_cut = current_cut
+                best_assignment = bits
+
+        partition = {node: bool(bit) for node, bit in zip(graph.nodes(), best_assignment)}
+
+        return best_cut, partition
         
     def bitstring_to_cut(self, bitstring, edges):
-            return sum(1 if bitstring[i] != bitstring[j] else 0 for i, j in edges)
-        
-    # leave the depth at 1 pls
-    def expectation(self, params, qubits, edges, depth:int=1):
-        gammas = params[:depth]
-        betas = params[depth:]
-
-        circuit = cirq.Circuit()
-        
-        # Initial layer of Hadamards
-        circuit.append(cirq.H.on_each(*qubits))
-
-        for layer in range(p):
-            gamma = gammas[layer]
-            beta = betas[layer]
-
-            # Cost unitary
-            for u, v in edges:
-                circuit.append(cirq.ZZ(qubits[u], qubits[v]) ** (-gamma / np.pi))
-
-            # Mixer unitary
-            for q in qubits:
-                circuit.append(cirq.rx(2 * beta)(q))
-
-            # Measure
-            circuit.append(cirq.measure(*qubits, key='result'))
-
-            sim = cirq.Simulator()
-            result = sim.run(circuit, repetitions=self.repetitions)
-            bitstrings = result.measurements['result']
-            avg_cut = np.mean([self.bitstring_to_cut(b, edges) for b in bitstrings])
-            return -avg_cut  # because we minimize    
+            return sum(1 if bitstring[i] != bitstring[j] else 0 for i, j in edges) 
         
     def estimate_cost(self, graph, samples):
         """Estimate the cost function of the QAOA on the given graph using the
@@ -259,7 +205,7 @@ class QAOACirqMaxCutSolver(MaxCutSolver):
 
         return -cost_value    
         
-    def optimize_AB(self, sim:cirq.Simulator, circuit, graph):
+    def optimize_AB(self, sim:cirq.Simulator, circuit, graph, alpha, beta):
         # Set the grid size = number of points in the interval [0, 2π).
         grid_size = 5
 
@@ -275,3 +221,12 @@ class QAOACirqMaxCutSolver(MaxCutSolver):
                 )
                 exp_values[i][j] = self.estimate_cost(graph, samples)
                 par_values[i][j] = alpha_value, beta_value
+                
+        return exp_values, par_values
+                
+    def cut_value(self, bitstring, graph):
+        total = 0
+        for u, v in graph.edges():
+            if bitstring[u] != bitstring[v-1]:
+                total += 1
+        return total
