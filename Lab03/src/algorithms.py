@@ -171,17 +171,17 @@ class QAOACirqMaxCutSolver(MaxCutSolver):
         )
         
         # Step 3: Optimize angles
-        init_params = np.random.uniform(0, np.pi, 2 * p)
-        res = minimize(expectation, init_params, bounds=[(0, np.pi)] * 2 * p, method='COBYLA')
-        best_params = res.x
+        init_params = np.random.uniform(0, np.pi, 2 * self.depth)
 
         # Step 4: Rebuild and run circuit with optimal params
         circuit = cirq.Circuit()
         circuit.append(cirq.H.on_each(*qubits))
+        
+        best_params = self.expectation()
 
-        for layer in range(p):
+        for layer in range(self.depth):
             gamma = best_params[layer]
-            beta = best_params[p + layer]
+            beta = best_params[self.depth + layer]
             for u, v in edges:
                 circuit.append(cirq.ZZ(node_qubit_map[u], node_qubit_map[v]) ** (-gamma / np.pi))
             for q in qubits:
@@ -190,13 +190,13 @@ class QAOACirqMaxCutSolver(MaxCutSolver):
         circuit.append(cirq.measure(*qubits, key='result'))
 
         sim = cirq.Simulator()
-        result = sim.run(circuit, repetitions=reps)
+        result = sim.run(circuit, repetitions=self.repetitions)
         bitstrings = result.measurements['result']
 
         # Step 5: Analyze best cut
         counts = Counter(tuple(b) for b in bitstrings)
         most_common_bitstring, _ = counts.most_common(1)[0]
-        max_cut = bitstring_to_cut(most_common_bitstring)
+        max_cut = self.bitstring_to_cut(most_common_bitstring)
 
         # Optional: print solution
         print("Best bitstring:", most_common_bitstring)
