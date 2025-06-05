@@ -227,6 +227,6 @@ class QAOACirqMaxCutSolver(MaxCutSolver):
     def cut_value(self, bitstring, graph):
         total = 0
         for u, v in graph.edges():
-            if bitstring[u] != bitstring[v-1]:
+            if bitstring[u] != bitstring[v]:
                 total += 1
         return total
