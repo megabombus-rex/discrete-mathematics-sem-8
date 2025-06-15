@@ -1,0 +1,23 @@
+Wilcoxon - only valid for the QAOA and GoemansWilliamson, as it requires multiple data on one instance, where for Brute-Force/Gurobi solvers only one result is possible per configuration.
+
+================================================================================
+1×N COMPARISONS (Each solver vs all others)
+================================================================================
+BruteForceMaxCutSolver: Mean=52.10, Others=52.46, Diff=-0.36, p=0.9831
+GuirobiMaxCutSolver: Mean=52.10, Others=52.46, Diff=-0.36, p=0.9831
+GoemansWilliamsonMaxCutSolver: Mean=48.57, Others=55.39, Diff=-6.82, p=0.0000
+QAOACirqMaxCutSolver: Mean=55.98, Others=49.16, Diff=6.82, p=0.0000
+
+================================================================================
+DESCRIPTIVE STATISTICS
+================================================================================
+                              max_cut_value                                           time_ms                          efficiency
+                                      count     mean      std   min    max median        mean           std     median       mean     std  median
+solver
+BruteForceMaxCutSolver                   88  52.1023  25.7722  15.0  110.0   52.0  59222.4322  8.611326e+04  3703.2518     0.0860  0.1176  0.0145 
+GoemansWilliamsonMaxCutSolver           880  48.5705  24.1824  13.0  110.0   46.0     13.2972  4.308500e+00    12.7056     3.6063  1.3275  3.4660
+GuirobiMaxCutSolver                      88  52.1023  25.7722  15.0  110.0   52.0    127.2018  1.835566e+02    61.6532     0.8138  0.4448  0.8731
+QAOACirqMaxCutSolver                    980  55.9806  27.6790  11.0  110.0   54.0  78932.3098  1.942236e+06  5124.3983     0.0062  0.0034  0.0051 - one instance less, maybe thats why max-cut is bigger
+
+Brute-Force/Gurobi/QAOA - only worked for at most 20 nodes, 
+GoemansWilliamson worked for bigger graphs (800 nodes)

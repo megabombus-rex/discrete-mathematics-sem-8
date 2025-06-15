@@ -51,7 +51,7 @@ def test(maxcut:MaxCutSolver):
         graph = RudyGraphReader.read_rud(file)
         exp(graph, file, maxcut, 10)    
     
-    if isinstance(maxcut, GoemansWilliamsonMaxCutSolver) or isinstance(maxcut, QAOACirqMaxCutSolver):
+    if isinstance(maxcut, GoemansWilliamsonMaxCutSolver):
         for i in range(1, 10):
             graph = RudyGraphReader.read_rud(f"data\\set4\\bqp-50-{i}.txt")
             exp(graph, maxcut, 10)
@@ -89,13 +89,19 @@ def main(maxcut:MaxCutSolver):
 
 def analyze():
     analyzer = MaxCutAnalyzer('results/2025-06-04_results.csv')
-    #analyzer.runtime_vs_edge_count_analysis()
-    #analyzer.runtime_vs_node_count_analysis()
+    
+    analyzer.runtime_vs_edge_count_analysis()
+    analyzer.runtime_vs_node_count_analysis()
+    
+    analyzer.wilcoxon_pairwise_tests()
+    heatmap_analysis = analyzer.runtime_heatmap_analysis()
+        
+    analyzer.create_visualizations()
     #analyzer.exact_vs_approximate_analysis()
     #analyzer.wilcoxon_pairwise_tests()
     #analyzer.one_vs_all_comparisons()
     
-    results = analyzer.run_complete_analysis()
+    #results = analyzer.run_complete_analysis()
 
 if __name__ == '__main__':
     #main(GuirobiMaxCutSolver())

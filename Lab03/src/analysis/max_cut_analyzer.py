@@ -37,8 +37,8 @@ class MaxCutAnalyzer:
         self.df['efficiency'] = self.df['max_cut_value'] / (self.df['time_ms'] + 1e-6)  # Add small epsilon to avoid division by zero
         
         # Categorize solvers
-        self.exact_solvers = ['Gurobi', 'Brute-force']
-        self.approx_solvers = ['QAOA', 'GoemansWilliamson']
+        self.exact_solvers = ['GuirobiMaxCutSolver', 'BruteForceMaxCutSolver']
+        self.approx_solvers = ['QAOACirqMaxCutSolver', 'GoemansWilliamsonMaxCutSolver']
         
         print(f"Dataset loaded: {len(self.df)} records")
         print(f"Solvers: {list(self.solvers)}")
@@ -72,8 +72,9 @@ class MaxCutAnalyzer:
         
         results = []
         
-        for i, solver1 in enumerate(self.solvers):
-            for j, solver2 in enumerate(self.solvers):
+        # this is only valid for the approximate solvers
+        for i, solver1 in enumerate(self.approx_solvers):
+            for j, solver2 in enumerate(self.approx_solvers):
                 if i != j:
                     # Get data for both solvers on same graphs
                     data1 = self.df[self.df['solver'] == solver1]
