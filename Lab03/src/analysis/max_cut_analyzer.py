@@ -3,24 +3,33 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
-from scipy.stats import wilcoxon, mannwhitneyu, kruskal
+from scipy.stats import wilcoxon, mannwhitneyu, kruskal, pearsonr, spearmanr
+from scipy.interpolate import griddata
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import r2_score
+import matplotlib.patches as patches
 from itertools import combinations
 import warnings
-warnings.filterwarnings('ignore')
 
-class MaxCutAnalyzer:
-    """
-    Comprehensive statistical analysis tool for max-cut solver performance comparison.
-    """
-    
+# Suppress specific warnings that are not critical for analysis
+# Common warnings include:
+# - RuntimeWarnings from log(0) or division by zero in statistical calculations
+# - FutureWarnings from pandas/numpy version compatibility
+# - UserWarnings from matplotlib about tight_layout
+# - Convergence warnings from sklearn when fitting on small datasets
+warnings.filterwarnings('ignore', category=RuntimeWarning)
+warnings.filterwarnings('ignore', category=FutureWarning) 
+warnings.filterwarnings('ignore', category=UserWarning)
+warnings.filterwarnings('ignore', message='.*ill-conditioned.*')  # sklearn numerical warnings
+
+class MaxCutAnalyzer:    
     def __init__(self, csv_file_path):
-        """Initialize with CSV file path."""
         self.df = pd.read_csv(csv_file_path)
         self.solvers = self.df['solver'].unique()
         self.prepare_data()
         
     def prepare_data(self):
-        """Prepare and clean the data for analysis."""
         # Convert time to milliseconds for better readability
         self.df['time_ms'] = self.df['time_in_nanoseconds'] / 1e6
         
@@ -306,6 +315,353 @@ class MaxCutAnalyzer:
         plt.savefig('maxcut_analysis.png', dpi=300, bbox_inches='tight')
         plt.show()
     
+    def runtime_vs_node_count_analysis(self):
+        """Analyze runtime scaling with respect to node count for each solver."""
+        print("\n" + "="*80)
+        print("RUNTIME vs NODE COUNT SCALING ANALYSIS")
+        print("="*80)
+        
+        results = []
+        
+        # Create visualization
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig.suptitle('Runtime vs Node Count Analysis', fontsize=16)
+        
+        for i, solver in enumerate(self.solvers):
+            solver_data = self.df[self.df['solver'] == solver].copy()
+            
+            if len(solver_data) < 3:
+                print(f"Insufficient data for {solver} (n={len(solver_data)})")
+                continue
+                
+            nodes = solver_data['node_count'].values.reshape(-1, 1)
+            runtime = solver_data['time_ms'].values
+            log_runtime = np.log10(runtime + 1e-6)  # Add small value to avoid log(0)
+            
+            # Linear correlation
+            linear_corr, linear_p = pearsonr(solver_data['node_count'], solver_data['time_ms'])
+            
+            # Log-log correlation (for power law detection)
+            log_nodes = np.log10(solver_data['node_count'])
+            loglog_corr, loglog_p = pearsonr(log_nodes, log_runtime)
+            
+            # Spearman correlation (non-parametric)
+            spearman_corr, spearman_p = spearmanr(solver_data['node_count'], solver_data['time_ms'])
+            
+            # Linear regression
+            lr = LinearRegression()
+            lr.fit(nodes, runtime)
+            linear_r2 = lr.score(nodes, runtime)
+            linear_pred = lr.predict(nodes)
+            
+            results.append({
+                'Solver': solver,
+                'N_samples': len(solver_data),
+                'Linear_correlation': linear_corr,
+                'Linear_p_value': linear_p,
+                'Spearman_correlation': spearman_corr,
+                'Spearman_p_value': spearman_p,
+                'Linear_R2': linear_r2
+            })
+            
+            # Plotting
+            ax = axes[i//2, i%2] if i < 4 else None
+            if ax is not None:
+                # Scatter plot
+                ax.scatter(solver_data['node_count'], solver_data['time_ms'], 
+                          alpha=0.7, label='Data points')
+                
+                # Fit lines
+                sorted_indices = np.argsort(solver_data['node_count'])
+                ax.plot(solver_data['node_count'].iloc[sorted_indices], 
+                       linear_pred[sorted_indices], 'r--', 
+                       label=f'Linear (R²={linear_r2:.3f})')
+                
+                ax.set_xlabel('Node Count')
+                ax.set_ylabel('Runtime (ms)')
+                ax.set_title(f'{solver}')
+                ax.set_yscale('log')
+                ax.legend()
+                ax.grid(True, alpha=0.3)
+            
+            print(f"\n{solver}:")
+            print(f"Linear correlation: r={linear_corr:.3f}, p={linear_p:.4f}")
+            print(f"Spearman correlation: ρ={spearman_corr:.3f}, p={spearman_p:.4f}")
+        
+        plt.tight_layout()
+        plt.savefig('runtime_vs_nodes.png', dpi=300, bbox_inches='tight')
+        plt.show()
+        
+        return pd.DataFrame(results)
+    
+    def runtime_vs_edge_count_analysis(self):
+        """Analyze runtime scaling with respect to edge count for each solver."""
+        print("\n" + "="*80)
+        print("RUNTIME vs EDGE COUNT SCALING ANALYSIS")
+        print("="*80)
+        
+        results = []
+        
+        # Create visualization
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig.suptitle('Runtime vs Edge Count Analysis', fontsize=16)
+        
+        for i, solver in enumerate(self.solvers):
+            solver_data = self.df[self.df['solver'] == solver].copy()
+            
+            if len(solver_data) < 3:
+                print(f"Insufficient data for {solver} (n={len(solver_data)})")
+                continue
+                
+            edges = solver_data['edge_count'].values.reshape(-1, 1)
+            runtime = solver_data['time_ms'].values
+            log_runtime = np.log10(runtime + 1e-6)
+            
+            # Linear correlation
+            linear_corr, linear_p = pearsonr(solver_data['edge_count'], solver_data['time_ms'])
+            
+            # Log-log correlation
+            log_edges = np.log10(solver_data['edge_count'])
+            loglog_corr, loglog_p = pearsonr(log_edges, log_runtime)
+            
+            # Spearman correlation
+            spearman_corr, spearman_p = spearmanr(solver_data['edge_count'], solver_data['time_ms'])
+            
+            # Linear regression
+            lr = LinearRegression()
+            lr.fit(edges, runtime)
+            linear_r2 = lr.score(edges, runtime)
+            linear_pred = lr.predict(edges)
+            
+            results.append({
+                'Solver': solver,
+                'N_samples': len(solver_data),
+                'Linear_correlation': linear_corr,
+                'Linear_p_value': linear_p,
+                'Spearman_correlation': spearman_corr,
+                'Spearman_p_value': spearman_p,
+                'Linear_R2': linear_r2
+            })
+            
+            # Plotting
+            ax = axes[i//2, i%2] if i < 4 else None
+            if ax is not None:
+                # Scatter plot
+                ax.scatter(solver_data['edge_count'], solver_data['time_ms'], 
+                          alpha=0.7, label='Data points')
+                
+                # Fit lines
+                sorted_indices = np.argsort(solver_data['edge_count'])
+                ax.plot(solver_data['edge_count'].iloc[sorted_indices], 
+                       linear_pred[sorted_indices], 'r--', 
+                       label=f'Linear (R²={linear_r2:.3f})')
+                
+                ax.set_xlabel('Edge Count')
+                ax.set_ylabel('Runtime (ms)')
+                ax.set_title(f'{solver}')
+                ax.set_yscale('log')
+                ax.legend()
+                ax.grid(True, alpha=0.3)
+            
+            print(f"\n{solver}:")
+            print(f"  Linear correlation: r={linear_corr:.3f}, p={linear_p:.4f}")
+            print(f"  Spearman correlation: ρ={spearman_corr:.3f}, p={spearman_p:.4f}")
+        
+        plt.tight_layout()
+        plt.savefig('runtime_vs_edges.png', dpi=300, bbox_inches='tight')
+        plt.show()
+        
+        return pd.DataFrame(results)
+    
+    def runtime_heatmap_analysis(self):
+        """Create heatmaps showing runtime as a function of node count and edge count."""
+        print("\n" + "="*80)
+        print("RUNTIME HEATMAP ANALYSIS (Node Count vs Edge Count)")
+        print("="*80)
+        
+        # Create figure with subplots for each solver
+        n_solvers = len(self.solvers)
+        cols = 2
+        rows = (n_solvers + 1) // 2
+        
+        fig, axes = plt.subplots(rows, cols, figsize=(16, 4*rows))
+        if n_solvers == 1:
+            axes = [axes]
+        elif rows == 1:
+            axes = axes.reshape(1, -1)
+        
+        fig.suptitle('Runtime Heatmaps: Node Count vs Edge Count', fontsize=16)
+        
+        results = []
+        
+        for i, solver in enumerate(self.solvers):
+            solver_data = self.df[self.df['solver'] == solver].copy()
+            
+            if len(solver_data) < 3:
+                print(f"Insufficient data for {solver} (n={len(solver_data)})")
+                continue
+            
+            # Get the subplot
+            row = i // cols
+            col = i % cols
+            ax = axes[row, col] if rows > 1 else axes[col]
+            
+            # Extract data
+            nodes = solver_data['node_count'].values
+            edges = solver_data['edge_count'].values
+            runtime = solver_data['time_ms'].values
+            
+            # Calculate statistics
+            node_range = nodes.max() - nodes.min()
+            edge_range = edges.max() - edges.min()
+            runtime_range = runtime.max() - runtime.min()
+            
+            # Calculate correlation with graph density (edges/nodes²)
+            max_possible_edges = nodes * (nodes - 1) / 2
+            density = edges / max_possible_edges
+            density_corr = np.corrcoef(density, runtime)[0, 1] if len(density) > 1 else 0
+            
+            # Calculate partial correlations
+            node_runtime_corr, node_p = pearsonr(nodes, runtime)
+            edge_runtime_corr, edge_p = pearsonr(edges, runtime)
+            node_edge_corr, _ = pearsonr(nodes, edges)
+            
+            results.append({
+                'Solver': solver,
+                'N_samples': len(solver_data),
+                'Node_range': f"{nodes.min()}-{nodes.max()}",
+                'Edge_range': f"{edges.min()}-{edges.max()}",
+                'Runtime_range_ms': f"{runtime.min():.2f}-{runtime.max():.2f}",
+                'Node_runtime_correlation': node_runtime_corr,
+                'Node_runtime_p_value': node_p,
+                'Edge_runtime_correlation': edge_runtime_corr,
+                'Edge_runtime_p_value': edge_p,
+                'Density_runtime_correlation': density_corr,
+                'Node_edge_correlation': node_edge_corr
+            })
+            
+            # Create heatmap
+            if len(solver_data) >= 10:  # Need enough points for interpolation
+                # Create grid for interpolation
+                node_min, node_max = nodes.min(), nodes.max()
+                edge_min, edge_max = edges.min(), edges.max()
+                
+                # Create grid
+                grid_nodes = np.linspace(node_min, node_max, 50)
+                grid_edges = np.linspace(edge_min, edge_max, 50)
+                grid_n, grid_e = np.meshgrid(grid_nodes, grid_edges)
+                
+                # Interpolate runtime values
+                try:
+                    grid_runtime = griddata((nodes, edges), np.log10(runtime + 1e-6), 
+                                          (grid_n, grid_e), method='cubic', fill_value=np.nan)
+                    
+                    # Create heatmap
+                    im = ax.imshow(grid_runtime, extent=[node_min, node_max, edge_min, edge_max], 
+                                  origin='lower', aspect='auto', cmap='viridis')
+                    
+                    # Add colorbar
+                    cbar = plt.colorbar(im, ax=ax)
+                    cbar.set_label('Log₁₀(Runtime ms)', rotation=270, labelpad=20)
+                    
+                    # Add contour lines
+                    contours = ax.contour(grid_n, grid_e, grid_runtime, levels=8, colors='white', alpha=0.6, linewidths=0.8)
+                    ax.clabel(contours, inline=True, fontsize=8, fmt='%.1f')
+                    
+                except Exception as e:
+                    print(f"Could not create interpolated heatmap for {solver}: {e}")
+                    # Fallback to scatter plot
+                    scatter = ax.scatter(nodes, edges, c=np.log10(runtime + 1e-6), 
+                                       cmap='viridis', s=50, alpha=0.7)
+                    cbar = plt.colorbar(scatter, ax=ax)
+                    cbar.set_label('Log₁₀(Runtime ms)', rotation=270, labelpad=20)
+            else:
+                # Use scatter plot for small datasets
+                scatter = ax.scatter(nodes, edges, c=np.log10(runtime + 1e-6), 
+                                   cmap='viridis', s=50, alpha=0.7)
+                cbar = plt.colorbar(scatter, ax=ax)
+                cbar.set_label('Log₁₀(Runtime ms)', rotation=270, labelpad=20)
+            
+            # Overlay actual data points
+            ax.scatter(nodes, edges, c='red', s=20, alpha=0.8, marker='x', linewidths=1)
+            
+            # Labels and title
+            ax.set_xlabel('Node Count')
+            ax.set_ylabel('Edge Count')
+            ax.set_title(f'{solver}\n(r_nodes={node_runtime_corr:.3f}, r_edges={edge_runtime_corr:.3f})')
+            ax.grid(True, alpha=0.3)
+            
+            print(f"\n{solver}:")
+            print(f"  Node-Runtime correlation: r={node_runtime_corr:.3f}, p={node_p:.4f}")
+            print(f"  Edge-Runtime correlation: r={edge_runtime_corr:.3f}, p={edge_p:.4f}")
+            print(f"  Density-Runtime correlation: r={density_corr:.3f}")
+            print(f"  Data points: {len(solver_data)}")
+        
+        # Hide empty subplots
+        total_subplots = rows * cols
+        for i in range(n_solvers, total_subplots):
+            row = i // cols
+            col = i % cols
+            ax = axes[row, col] if rows > 1 else axes[col]
+            ax.set_visible(False)
+        
+        plt.tight_layout()
+        plt.savefig('runtime_heatmaps.png', dpi=300, bbox_inches='tight')
+        plt.show()
+        
+        # Create combined heatmap for comparison
+        self._create_combined_heatmap()
+        
+        return pd.DataFrame(results)
+    
+    def _create_combined_heatmap(self):
+        """Create a combined heatmap showing all solvers."""
+        print("\nCreating combined comparison heatmap...")
+        
+        fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+        
+        # Get overall ranges
+        all_nodes = self.df['node_count']
+        all_edges = self.df['edge_count']
+        
+        node_min, node_max = all_nodes.min(), all_nodes.max()
+        edge_min, edge_max = all_edges.min(), all_edges.max()
+        
+        # Create color map for solvers
+        colors = plt.cm.Set1(np.linspace(0, 1, len(self.solvers)))
+        
+        for i, solver in enumerate(self.solvers):
+            solver_data = self.df[self.df['solver'] == solver]
+            
+            if len(solver_data) < 2:
+                continue
+                
+            nodes = solver_data['node_count']
+            edges = solver_data['edge_count']
+            runtime = solver_data['time_ms']
+            
+            # Create bubble chart
+            # Bubble size proportional to runtime (log scale)
+            sizes = 50 + 200 * (np.log10(runtime + 1) / np.log10(runtime.max() + 1))
+            
+            scatter = ax.scatter(nodes, edges, s=sizes, c=[colors[i]], 
+                               alpha=0.6, label=solver, edgecolors='black', linewidth=0.5)
+        
+        ax.set_xlabel('Node Count')
+        ax.set_ylabel('Edge Count')
+        ax.set_title('Combined Runtime Analysis\n(Bubble size ∝ Runtime)')
+        ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+        ax.grid(True, alpha=0.3)
+        
+        # Add text annotation
+        ax.text(0.02, 0.98, 'Larger bubbles = Longer runtime', 
+                transform=ax.transAxes, fontsize=10, verticalalignment='top',
+                bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+        
+        plt.tight_layout()
+        plt.savefig('combined_runtime_heatmap.png', dpi=300, bbox_inches='tight')
+        plt.show()
+    
     def run_complete_analysis(self):
         """Run the complete statistical analysis."""
         print("MAX-CUT SOLVER PERFORMANCE ANALYSIS")
@@ -319,6 +675,11 @@ class MaxCutAnalyzer:
         pairwise_results, p_matrix, stat_matrix = self.wilcoxon_pairwise_tests()
         one_vs_all_results = self.one_vs_all_comparisons()
         exact_vs_approx = self.exact_vs_approximate_analysis()
+        
+        # Scaling analysis
+        node_scaling = self.runtime_vs_node_count_analysis()
+        edge_scaling = self.runtime_vs_edge_count_analysis()
+        heatmap_analysis = self.runtime_heatmap_analysis()
         
         # Create visualizations
         self.create_visualizations()
@@ -342,19 +703,8 @@ class MaxCutAnalyzer:
             'pairwise_tests': pairwise_results,
             'one_vs_all': one_vs_all_results,
             'exact_vs_approx': exact_vs_approx,
-            'p_matrix': p_matrix
+            'p_matrix': p_matrix,
+            'node_scaling': node_scaling,
+            'edge_scaling': edge_scaling,
+            'heatmap_analysis': heatmap_analysis
         }
-
-# Usage example:
-if __name__ == "__main__":
-    # Replace 'your_file.csv' with your actual CSV file path
-    analyzer = MaxCutAnalyzer('your_file.csv')
-    results = analyzer.run_complete_analysis()
-    
-    # Save results to files
-    if 'pairwise_tests' in results and len(results['pairwise_tests']) > 0:
-        results['pairwise_tests'].to_csv('pairwise_test_results.csv', index=False)
-    
-    results['one_vs_all'].to_csv('one_vs_all_results.csv', index=False)
-    
-    print("\nAnalysis complete! Results saved to CSV files and visualization saved as 'maxcut_analysis.png'")

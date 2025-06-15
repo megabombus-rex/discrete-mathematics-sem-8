@@ -7,7 +7,7 @@ from graph_creation import *
 from drawing_tools import *
 from simulation.experiments import *
 import os
-from analysis.data_analysis import compare_algorithms_from_multiple_csvs, compare_algorithms
+#from analysis.data_analysis import compare_algorithms_from_multiple_csvs, compare_algorithms
 from analysis.max_cut_analyzer import MaxCutAnalyzer
 
 def generate_graphs():
@@ -39,23 +39,21 @@ def generate_graphs():
         GraphGenerator.generate_simple_graph_temperature(10, 2)
         
 def main(maxcut:MaxCutSolver):
-    analyzer = MaxCutAnalyzer('results/2025-06-02_results.csv')
-    results = analyzer.run_complete_analysis()
     
     #generate_graphs()    
-    #exp = Experiment()
+    exp = Experiment()
     #compare_algorithms('results/2025-06-02_results.csv', solver_a='BruteForceMaxCutSolver', solver_b='GuirobiMaxCutSolver')
     #compare_algorithms('results/2025-06-02_results.csv', solver_a='GuirobiMaxCutSolver', solver_b='GoemansWilliamsonMaxCutSolver')
     
     
-    #files = [f for f in os.listdir('data/set6') if os.path.isfile(os.path.join('data/set6', f))]
-    #for f in range(len(files)):
-    #    files[f] = 'data/set6/' + files[f]
-    #    print(files[f])
-    #
-    #for file in files:
-    #    graph = RudyGraphReader.read_rud(file)
-    #    exp(graph, file, maxcut, 10)    
+    files = [f for f in os.listdir('data/set6') if os.path.isfile(os.path.join('data/set6', f))]
+    for f in range(len(files)):
+        files[f] = 'data/set6/' + files[f]
+        print(files[f])
+    
+    for file in files:
+        graph = RudyGraphReader.read_rud(file)
+        exp(graph, file, maxcut, 10)    
     
     #if isinstance(maxcut, GoemansWilliamsonMaxCutSolver) or isinstance(maxcut, QAOAMaxCutSolver):
     #    for i in range(1, 10):
@@ -78,8 +76,19 @@ def main(maxcut:MaxCutSolver):
     #Painter.visualize_cut(graph,partition)
     #print(f'Max count value is: {max_value}')
 
+def analyze():
+    analyzer = MaxCutAnalyzer('results/2025-06-04_results.csv')
+    #analyzer.runtime_vs_edge_count_analysis()
+    #analyzer.runtime_vs_node_count_analysis()
+    #analyzer.exact_vs_approximate_analysis()
+    #analyzer.wilcoxon_pairwise_tests()
+    #analyzer.one_vs_all_comparisons()
+    
+    results = analyzer.run_complete_analysis()
+
 if __name__ == '__main__':
     #main(GuirobiMaxCutSolver())
     #main(BruteForceMaxCutSolver())
     #main(GoemansWilliamsonMaxCutSolver())
-    main(QAOACirqMaxCutSolver())
+    #main(QAOACirqMaxCutSolver())
+    analyze()
